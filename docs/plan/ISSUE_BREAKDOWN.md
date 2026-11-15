@@ -55,8 +55,8 @@ Pick any open issue that is not blocked, highest priority first, then earliest p
 3. `pip index versions agentdojo` and read its docs: how to plug a custom agent pipeline and tool runtime.
 4. Check what ToolPrivBench ships: scenario JSON, tool tier labels, ground-truth minimum tool, executable tool stubs or not.
 5. If anything is missing, send the authors a short email and note the date.
-6. Write `docs/sources.md`: one row per source with URL, licence, what it provides, status (verified / missing / reimplement).
-**Deliverables:** `docs/sources.md`.
+6. Write `docs/research-reference/sources.md`: one row per source with URL, licence, what it provides, status (verified / missing / reimplement).
+**Deliverables:** `docs/research-reference/sources.md`.
 **Acceptance:** every source has a verified status. For each "missing", the fallback is written (e.g. reimplement MAC from the paper; build scenario stubs).
 **Blocked by (set as GitHub relationship):** nothing. **Notes:** if ToolPrivBench data is not available, stop and raise it with the supervisor before more work.
 
