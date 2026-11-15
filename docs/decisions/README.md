@@ -25,3 +25,4 @@ Status meanings: **Accepted** = rule taken from the PRD or made and done; **Prop
 | D17 | [No automated dependency updates](D17-no-dependabot.md) | Accepted (done) | PR #50 |
 | D18 | [Tier map for ToolPrivBench](D18-toolprivbench-tier-map.md) | Proposed | #13, #19, #20 |
 | D19 | [Which tools receive injected 503s](D19-failure-injection-scope.md) | Proposed (open question) | #16 |
+| D20 | [Run the open model first, repeat with the frontier model later](D20-staged-execution.md) | Accepted | #12, #28, #29, #31, #32 |

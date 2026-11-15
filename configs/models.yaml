@@ -1,0 +1,23 @@
+# Model registry. One entry per model key; the harness refers to models by key only.
+#
+# Staged plan (decision D20): the open model (`llama`) runs first; the frontier arm is
+# repeated later on the same grid. To switch the frontier model, change ONE line:
+# `models.frontier.litellm_model` (and `api_key_env` if the provider changes).
+
+# Shared by every model so both arms see identical decoding settings.
+sampling:
+  temperature: 0.2
+  top_p: 0.9
+  max_tokens: 2048
+
+models:
+  llama:
+    litellm_model: ollama/llama3.1:8b-instruct-q4_K_M
+    api_base_env: OLLAMA_API_BASE   # falls back to http://localhost:11434
+    # Ollama's default context is small and silently truncates long ReAct histories, so it is
+    # always set explicitly. Raise it (e.g. 16384) for AgentDojo prompts.
+    num_ctx: 8192
+
+  frontier:
+    litellm_model: gemini/gemini-2.5-flash
+    api_key_env: GEMINI_API_KEY
