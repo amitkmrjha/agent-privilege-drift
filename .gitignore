@@ -218,3 +218,11 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# --- Project-specific ---
+# Experiment outputs and raw data (large, reproducible from seeds and configs)
+runs/
+data/raw/
+
+# macOS
+.DS_Store
