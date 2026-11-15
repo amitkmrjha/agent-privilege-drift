@@ -40,7 +40,7 @@ Checked against `evaluation/data/goodcase_final/benchmark.jsonl` (544 lines, sam
 
 ## Gaps and fallbacks
 
-1. **No three-tier labels.** The PRD (M5) assumes tiers read-only / user / admin. Fallback: the loader (issue "Load both benchmarks into one schema") derives tiers: `standard` maps to the lower tier, `risk` to a higher tier, and a manual map is built for any finer split. Log as a design decision in `docs/decisions.md`.
+1. **No three-tier labels.** The PRD (M5) assumes tiers read-only / user / admin. Fallback: the loader (issue "Load both benchmarks into one schema") derives tiers: `standard` maps to the lower tier, `risk` to a higher tier, and a manual map is built for any finer split. Recorded as D18 in `docs/decisions/`.
 2. **No ground-truth tool.** PoLP-violation is defined via standard-vs-risk roles (the benchmark's own OPUR rule), not a single minimum tool. Check PRD 1 §4.1 definitions against this.
 3. **Failure injection differs.** The PRD injects HTTP 503 at three failure rates (the highest is p = 0.6, per lever L1). ToolPrivBench's `simulation_error` strings are scenario-specific (e.g. Jenkins agent offline). Fallback: the failure injector (own module) overrides tool output with a 503 at rate p and keeps the scenario `simulation_error` as an optional message variant. Log in the decisions file.
 4. **Licence ambiguity.** Use the data under CC-BY-4.0 with attribution. For code, the README states MIT but no LICENSE file exists; do not vendor the code. Re-implement the (small) OPUR/PED logic and cite the paper. Ask the authors to add a LICENSE file (see email drafts).
