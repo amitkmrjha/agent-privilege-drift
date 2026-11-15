@@ -1,0 +1,21 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it using the metadata below."
+title: "agent-privilege-drift: Dynamic Tool Authorization under Failure Pressure"
+type: software
+authors:
+  - family-names: "Kumar"
+    given-names: "Amit"
+repository-code: "https://github.com/amitkmrjha/agent-privilege-drift"
+license: MIT
+version: "0.0.0"
+date-released: "2026-11-15"
+abstract: >-
+  Research harness that evaluates least-privilege violations and privilege
+  escalation of LLM agents under injected tool failures, with and without
+  access-control mediators (none, SEAgent-style MAC, intent-based IBAC).
+keywords:
+  - LLM agents
+  - least privilege
+  - privilege escalation
+  - access control
+  - tool use
