@@ -33,9 +33,18 @@ Requires [uv](https://docs.astral.sh/uv/) (it installs Python 3.12 for you).
 
 ```bash
 make setup       # uv sync + install pre-commit hooks
-make lint        # ruff check, ruff format --check, mypy (strict)
-make test        # pytest
+make check       # lint + mypy (strict) + pytest: the gate CI runs
+make help        # list every target
 ```
+
+Container route (reproducible environment):
+
+```bash
+make docker-build && docker compose run --rm harness
+make docker-test
+```
+
+Ollama is not containerised: use the native install (`ollama pull llama3.1:8b-instruct-q4_K_M`), since Docker on macOS has no GPU access. AI-agent guidance for contributors is in [AGENTS.md](AGENTS.md).
 
 `make pilot`, `make run-cell` and `make analyse` are placeholders that exit with an error until the harness is built (Phases 1 to 4). This section will be updated as they land.
 

@@ -1,0 +1,20 @@
+# Build context for the harness image.
+.venv
+.git
+.github
+.claude
+__pycache__
+*.py[cod]
+.mypy_cache
+.ruff_cache
+.pytest_cache
+.coverage
+htmlcov
+.env*
+!.env.example
+.DS_Store
+# Large or generated; mounted as volumes at run time, never baked in.
+runs/
+data/raw/
+notebooks/
+docs/
