@@ -29,14 +29,15 @@ MS research project (LJMU). A Python harness that runs an LLM agent (ReAct) on b
 
 ## How to run
 
-The Python project and tooling are not set up yet (see the "Set up the Python project and tooling" issue). The planned interface, once that lands:
+Requires [uv](https://docs.astral.sh/uv/) (it installs Python 3.12 for you).
 
 ```bash
-uv sync          # create the environment
-make lint test   # ruff, mypy, pytest
+make setup       # uv sync + install pre-commit hooks
+make lint        # ruff check, ruff format --check, mypy (strict)
+make test        # pytest
 ```
 
-This section will be updated with real commands as the harness is built.
+`make pilot`, `make run-cell` and `make analyse` are placeholders that exit with an error until the harness is built (Phases 1 to 4). This section will be updated as they land.
 
 ## Documentation
 
