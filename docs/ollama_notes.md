@@ -51,6 +51,15 @@ So a fixed seed reproduces the output exactly on this machine and setup, and the
 
 The first call after the model is not loaded took about 35 seconds (model load). Later calls are much faster. Exclude or flag load time when reporting latency.
 
+## Cache and provenance
+
+- Every `LLMResult` carries `model_fingerprint`, the Ollama digest of the weights that answered. Frontier models have no digest; pin the exact version in `configs/models.yaml`.
+- The response cache is off by default and meant for tests. It is keyed by model tag, **digest**, messages, sampling parameters and seed, so re-pointing a tag at new weights is a cache miss.
+- Calls **without a seed are never cached** (caching would freeze one random draw), and neither are Ollama calls whose digest cannot be read.
+- An unreadable or malformed cache file is treated as a miss and logged; cache writes are atomic.
+- Calls have a timeout (`request_timeout_s`, 300 s). A timeout raises `LLMTimeoutError`; any other provider failure raises `LLMCallError`; both derive from `LLMError` and chain the original exception. The client does not retry.
+- Logs record sizes, timings and warnings only. Prompts and API keys are never logged (covered by a test).
+
 ## Not yet verified
 
 - A real call to the frontier model (`gemini/gemini-2.5-flash`). By design (decision D20) the frontier arm runs after the open-model arm, and no API key has been used. Until then, only the one-line config switch is tested (`tests/test_llm.py`).

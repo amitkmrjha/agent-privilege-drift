@@ -1,34 +1,36 @@
-"""One call interface for every model (open or frontier) through LiteLLM."""
+"""One call interface for every model (open or frontier) through LiteLLM.
+
+`LLMClient.complete` is a short pipeline: resolve the model, try the cache, call the model,
+build a structured result, store it. Everything with side effects (the model call, the
+environment, token counting, digest lookup, the cache) is passed in, so each piece can be
+replaced in tests and nothing is read from global state inside the methods.
+"""
 
 from __future__ import annotations
 
+import logging
 import os
 import time
-from collections.abc import Callable, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from typing import Any
 
 import litellm
-from pydantic import BaseModel
+from litellm.exceptions import Timeout
+from pydantic import BaseModel, ValidationError
 
 from privilege_drift.llm.cache import ResponseCache, cache_key
 from privilege_drift.llm.config import ModelsConfig, ModelSpec
+from privilege_drift.llm.errors import LLMCallError, LLMTimeoutError, MissingCredentialError
+from privilege_drift.llm.fingerprint import FingerprintFn, OllamaFingerprinter
+from privilege_drift.llm.messages import ChatMessage
+from privilege_drift.llm.truncation import detect_truncation
+
+logger = logging.getLogger(__name__)
 
 DEFAULT_OLLAMA_BASE = "http://localhost:11434"
-# Ollama silently drops tokens when a prompt exceeds num_ctx, and the prompt size it then reports
-# is SMALLER than what was sent (observed: ~1,000-token prompt, num_ctx 256 -> 130 reported).
-# So a result is flagged `possible_truncation` when either:
-#   - the reported prompt size is at/near num_ctx, or
-#   - the reported size is well below an independent pre-send estimate.
-# A flag means "review or exclude"; it does not mean the call failed.
-NEAR_LIMIT_FRACTION = 0.98
-SHRUNK_FRACTION = 0.8
 
-Message = dict[str, Any]
 CompletionFn = Callable[..., Any]
-
-
-class MissingCredentialError(RuntimeError):
-    """The environment variable that should hold an API key is empty."""
+TokenCounter = Callable[[str, Sequence[ChatMessage]], int]
 
 
 class LLMResult(BaseModel):
@@ -40,12 +42,40 @@ class LLMResult(BaseModel):
     latency_s: float
     model_key: str
     model: str
+    model_fingerprint: str | None = None
     seed: int | None
     finish_reason: str | None
     tokens_in_estimate: int | None = None
     possible_truncation: bool = False
     cached: bool = False
     raw: dict[str, Any]
+
+
+class _Parsed(BaseModel):
+    """The few fields we read from a provider response."""
+
+    text: str
+    tokens_in: int
+    tokens_out: int
+    finish_reason: str | None
+    raw: dict[str, Any]
+
+
+def _parse_response(response: Any) -> _Parsed:
+    """The only place that touches the untyped provider response."""
+    choice = response.choices[0]
+    usage = getattr(response, "usage", None)
+    return _Parsed(
+        text=choice.message.content or "",
+        tokens_in=int(getattr(usage, "prompt_tokens", 0) or 0),
+        tokens_out=int(getattr(usage, "completion_tokens", 0) or 0),
+        finish_reason=choice.finish_reason,
+        raw=response.model_dump(),
+    )
+
+
+def _litellm_token_count(model: str, messages: Sequence[ChatMessage]) -> int:
+    return int(litellm.token_counter(model=model, messages=list(messages)))
 
 
 class LLMClient:
@@ -57,13 +87,56 @@ class LLMClient:
         *,
         cache: ResponseCache | None = None,
         completion_fn: CompletionFn | None = None,
+        token_counter: TokenCounter | None = None,
+        environ: Mapping[str, str] | None = None,
+        fingerprint_fn: FingerprintFn | None = None,
     ) -> None:
         self.config = config
-        self.cache = cache
+        self._cache = cache
         self._completion = completion_fn or litellm.completion
+        self._count_tokens = token_counter or _litellm_token_count
+        self._environ = os.environ if environ is None else environ
+        self._fingerprint = fingerprint_fn or OllamaFingerprinter()
 
-    def _request(self, spec: ModelSpec, seed: int | None) -> dict[str, Any]:
-        """Parameters that define the request (and therefore the cache key)."""
+    # ---- public ---------------------------------------------------------------------------
+
+    def complete(
+        self,
+        messages: Sequence[ChatMessage],
+        *,
+        model_key: str,
+        seed: int | None = None,
+    ) -> LLMResult:
+        spec = self.config.spec(model_key)
+        api_base = self._api_base(spec)
+        fingerprint = self._fingerprint(spec, api_base)
+        params = self._sampling_params(spec, seed)
+
+        key = self._cache_key(spec, messages, params, fingerprint, seed)
+        if key is not None:
+            hit = self._cache_get(key)
+            if hit is not None:
+                return hit
+
+        parsed, latency = self._call(spec, model_key, messages, params, api_base)
+        result = self._build_result(spec, model_key, messages, parsed, latency, fingerprint, seed)
+
+        if key is not None and self._cache is not None:
+            self._cache.put(key, result.model_dump(mode="json"))
+        logger.debug(
+            "llm call model=%s seed=%s tokens_in=%d tokens_out=%d latency_s=%.2f",
+            model_key,
+            seed,
+            result.tokens_in,
+            result.tokens_out,
+            result.latency_s,
+        )
+        return result
+
+    # ---- request construction -------------------------------------------------------------
+
+    def _sampling_params(self, spec: ModelSpec, seed: int | None) -> dict[str, Any]:
+        """Parameters that define the request, and therefore the cache key."""
         sampling = self.config.sampling
         params: dict[str, Any] = {
             "temperature": sampling.temperature,
@@ -76,70 +149,134 @@ class LLMClient:
             params["num_ctx"] = spec.num_ctx
         return params
 
-    def _connection(self, spec: ModelSpec) -> dict[str, Any]:
-        """Where and how to connect. Not part of the cache key."""
-        conn: dict[str, Any] = {}
+    def _api_base(self, spec: ModelSpec) -> str | None:
         if spec.litellm_model.startswith("ollama/"):
-            base = spec.api_base or (spec.api_base_env and os.environ.get(spec.api_base_env))
-            conn["api_base"] = base or DEFAULT_OLLAMA_BASE
-        elif spec.api_base:
-            conn["api_base"] = spec.api_base
+            from_env = self._environ.get(spec.api_base_env) if spec.api_base_env else None
+            return spec.api_base or from_env or DEFAULT_OLLAMA_BASE
+        return spec.api_base
+
+    def _connection(self, spec: ModelSpec, api_base: str | None) -> dict[str, Any]:
+        """How to connect. Never part of the cache key and never logged."""
+        conn: dict[str, Any] = {"timeout": self.config.request_timeout_s}
+        if api_base is not None:
+            conn["api_base"] = api_base
         if spec.api_key_env:
-            key = os.environ.get(spec.api_key_env)
-            if not key:
+            api_key = self._environ.get(spec.api_key_env)
+            if not api_key:
                 raise MissingCredentialError(f"{spec.api_key_env} is not set (see .env.example)")
-            conn["api_key"] = key
+            conn["api_key"] = api_key
         return conn
 
-    def complete(
+    # ---- cache ----------------------------------------------------------------------------
+
+    def _cache_key(
         self,
-        messages: Sequence[Message],
-        *,
-        model_key: str,
-        seed: int | None = None,
-    ) -> LLMResult:
-        spec = self.config.spec(model_key)
-        params = self._request(spec, seed)
-        key = cache_key({"model": spec.litellm_model, "messages": list(messages), "params": params})
+        spec: ModelSpec,
+        messages: Sequence[ChatMessage],
+        params: dict[str, Any],
+        fingerprint: str | None,
+        seed: int | None,
+    ) -> str | None:
+        """A key, or None when this call must not be cached.
 
-        if self.cache is not None:
-            hit = self.cache.get(key)
-            if hit is not None:
-                return LLMResult.model_validate({**hit, "cached": True})
-
-        conn = self._connection(spec)
-        start = time.perf_counter()
-        response = self._completion(
-            model=spec.litellm_model, messages=list(messages), **params, **conn
+        Never cache without a seed (the output is meant to be random, and caching would freeze
+        one draw). Never cache an Ollama model whose digest is unknown (the weights behind the
+        tag could have changed).
+        """
+        if self._cache is None:
+            return None
+        if seed is None:
+            logger.debug("not caching %s: no seed", spec.litellm_model)
+            return None
+        if spec.litellm_model.startswith("ollama/") and fingerprint is None:
+            logger.warning("not caching %s: model digest unavailable", spec.litellm_model)
+            return None
+        return cache_key(
+            {
+                "model": spec.litellm_model,
+                "fingerprint": fingerprint,
+                "messages": list(messages),
+                "params": params,
+            }
         )
-        latency = time.perf_counter() - start
 
-        choice = response.choices[0]
-        usage = response.usage
-        tokens_in = int(usage.prompt_tokens or 0)
-        tokens_out = int(usage.completion_tokens or 0)
+    def _cache_get(self, key: str) -> LLMResult | None:
+        assert self._cache is not None
+        stored = self._cache.get(key)
+        if stored is None:
+            return None
+        try:
+            return LLMResult.model_validate({**stored, "cached": True})
+        except ValidationError as exc:
+            logger.warning("ignoring invalid cache entry %s: %s", key[:12], exc.error_count())
+            return None
+
+    # ---- the model call -------------------------------------------------------------------
+
+    def _call(
+        self,
+        spec: ModelSpec,
+        model_key: str,
+        messages: Sequence[ChatMessage],
+        params: dict[str, Any],
+        api_base: str | None,
+    ) -> tuple[_Parsed, float]:
+        conn = self._connection(spec, api_base)
+        start = time.perf_counter()
+        try:
+            response = self._completion(
+                model=spec.litellm_model, messages=list(messages), **params, **conn
+            )
+        except Timeout as exc:
+            raise LLMTimeoutError(
+                f"{model_key} timed out after {self.config.request_timeout_s:g}s",
+                model_key=model_key,
+                model=spec.litellm_model,
+            ) from exc
+        except Exception as exc:  # adapter boundary: wrap whatever the provider raised
+            raise LLMCallError(
+                f"{model_key} call failed: {type(exc).__name__}: {str(exc)[:300]}",
+                model_key=model_key,
+                model=spec.litellm_model,
+            ) from exc
+        return _parse_response(response), time.perf_counter() - start
+
+    def _build_result(
+        self,
+        spec: ModelSpec,
+        model_key: str,
+        messages: Sequence[ChatMessage],
+        parsed: _Parsed,
+        latency: float,
+        fingerprint: str | None,
+        seed: int | None,
+    ) -> LLMResult:
         estimate: int | None = None
         truncated = False
         if spec.num_ctx:
-            estimate = int(litellm.token_counter(model=spec.litellm_model, messages=list(messages)))
-            truncated = (
-                tokens_in >= NEAR_LIMIT_FRACTION * spec.num_ctx
-                or tokens_in < SHRUNK_FRACTION * estimate
+            estimate = self._count_tokens(spec.litellm_model, messages)
+            truncated = detect_truncation(
+                tokens_in=parsed.tokens_in, estimate=estimate, num_ctx=spec.num_ctx
             )
-
-        result = LLMResult(
-            text=choice.message.content or "",
-            tokens_in=tokens_in,
-            tokens_out=tokens_out,
+            if truncated:
+                logger.warning(
+                    "possible prompt truncation model=%s tokens_in=%d estimate=%d num_ctx=%d",
+                    model_key,
+                    parsed.tokens_in,
+                    estimate,
+                    spec.num_ctx,
+                )
+        return LLMResult(
+            text=parsed.text,
+            tokens_in=parsed.tokens_in,
+            tokens_out=parsed.tokens_out,
             latency_s=latency,
             model_key=model_key,
             model=spec.litellm_model,
+            model_fingerprint=fingerprint,
             seed=seed,
-            finish_reason=choice.finish_reason,
+            finish_reason=parsed.finish_reason,
             tokens_in_estimate=estimate,
             possible_truncation=truncated,
-            raw=response.model_dump(),
+            raw=parsed.raw,
         )
-        if self.cache is not None:
-            self.cache.put(key, result.model_dump(mode="json"))
-        return result

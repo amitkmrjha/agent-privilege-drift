@@ -10,6 +10,9 @@ sampling:
   top_p: 0.9
   max_tokens: 2048
 
+# Per-call timeout in seconds. A hung server fails the call instead of blocking a batch.
+request_timeout_s: 300
+
 models:
   llama:
     litellm_model: ollama/llama3.1:8b-instruct-q4_K_M

@@ -1,13 +1,16 @@
-"""On-disk response cache keyed by (model, messages, params, seed)."""
+"""On-disk response cache keyed by a hash of the full request."""
 
 from __future__ import annotations
 
 import hashlib
 import json
+import logging
 import os
 import tempfile
 from pathlib import Path
 from typing import Any
+
+logger = logging.getLogger(__name__)
 
 
 def cache_key(payload: dict[str, Any]) -> str:
@@ -17,7 +20,7 @@ def cache_key(payload: dict[str, Any]) -> str:
 
 
 class ResponseCache:
-    """One JSON file per key. Writes are atomic (temp file, then rename)."""
+    """One JSON file per key. Writes are atomic; unreadable entries count as misses."""
 
     def __init__(self, directory: Path | str) -> None:
         self.directory = Path(directory)
@@ -28,9 +31,16 @@ class ResponseCache:
 
     def get(self, key: str) -> dict[str, Any] | None:
         path = self._path(key)
-        if not path.exists():
+        try:
+            loaded = json.loads(path.read_text())
+        except FileNotFoundError:
             return None
-        loaded: dict[str, Any] = json.loads(path.read_text())
+        except (OSError, ValueError) as exc:
+            logger.warning("ignoring unreadable cache entry %s: %s", path.name, exc)
+            return None
+        if not isinstance(loaded, dict):
+            logger.warning("ignoring cache entry %s: not a JSON object", path.name)
+            return None
         return loaded
 
     def put(self, key: str, value: dict[str, Any]) -> None:

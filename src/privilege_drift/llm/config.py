@@ -36,6 +36,8 @@ class ModelsConfig(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     sampling: Sampling
+    # Generous: the first call after a model is not loaded can take ~35 s on this machine.
+    request_timeout_s: float = 300.0
     models: dict[str, ModelSpec]
 
     def spec(self, model_key: str) -> ModelSpec:
