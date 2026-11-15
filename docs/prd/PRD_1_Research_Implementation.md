@@ -135,7 +135,7 @@ These are fixed by the proposal. Do not change them after the pre-registration f
 | T0.2 | Initialise `uv` project and the folder layout from `docs/plan/IMPLEMENTATION_PLAN.md` §2 | `pyproject.toml`, `uv.lock`, empty modules | `uv run pytest` runs (0 tests ok) | P0 | 1.5 | T0.1 |
 | T0.3 | Set up the GitHub Project: milestones M0–M8, labels per workstream, fields (Priority, Estimate); create one issue per task in this section | Board populated | Every T-ID has an issue | P1 | 1.5 | T0.1 |
 | T0.4 | Create `docs/decisions.md` with D2–D14 and answer each | Decision log | All open decisions have an answer or an owner/date | P0 | 1 | |
-| T0.5 | **Verify benchmark availability (D1):** locate ToolPrivBench, AgentDojo, SEAgent code/data, licences, and confirm each cited 2026 preprint exists (I8) | `docs/sources.md` | Each source has a URL, licence, and verified status | P0 | 1.5 | |
+| T0.5 | **Verify benchmark availability (D1):** locate ToolPrivBench, AgentDojo, SEAgent code/data, licences, and confirm each cited 2026 preprint exists (I8) | `docs/research-reference/sources.md` | Each source has a URL, licence, and verified status | P0 | 1.5 | |
 
 ### WS2 Harness build
 
