@@ -72,7 +72,7 @@ Pick any open issue that is not blocked, highest priority first, then earliest p
 **Priority / estimate (project fields):** P0, 1.5 h
 **Goal:** reproducible environment with lint, types and tests wired.
 **Steps**
-1. `uv init --package --python 3.12 --name polp`; keep the folder layout from `docs/plan/IMPLEMENTATION_PLAN.md` §2 (empty modules with `__init__.py`).
+1. `uv init --package --python 3.12 --name privilege-drift`; keep the folder layout from `docs/plan/IMPLEMENTATION_PLAN.md` §2 (empty modules with `__init__.py`).
 2. Add dependencies as in IMPLEMENTATION_PLAN §3.2; `uv lock`.
 3. Configure `ruff`, `mypy` and `pytest` in `pyproject.toml`.
 4. Add `Makefile` targets: `setup`, `lint`, `test`, `pilot`, `run-cell`, `analyse`.
@@ -106,7 +106,7 @@ Pick any open issue that is not blocked, highest priority first, then earliest p
 **Goal:** one call interface for Llama (local) and the frontier model.
 **Steps**
 1. `ollama pull llama3.1:8b-instruct-q4_K_M`; record the digest from `ollama show`.
-2. `src/polp/llm/client.py`: wrapper over `litellm.completion` taking a model key from `configs/models.yaml`.
+2. `src/privilege_drift/llm/client.py`: wrapper over `litellm.completion` taking a model key from `configs/models.yaml`.
 3. In `models.yaml`: Llama via `ollama/…`, frontier via `gemini/gemini-2.5-flash` (or Anthropic); shared sampling constants (temperature 0.2, top-p 0.9, max tokens 2,048); `num_ctx` set explicitly (8,192, raise for AgentDojo).
 4. Return a structured result (text, tokens in/out, latency, raw response).
 5. Add an on-disk response cache keyed by (model, prompt, params, seed) for the golden test; on by default in tests only.
@@ -207,7 +207,7 @@ Pick any open issue that is not blocked, highest priority first, then earliest p
 3. Concurrency: Llama 1 worker; frontier limited by requests per minute; back off with `tenacity` on 429/5xx; log API errors as `infrastructure_error` and retry **without** counting them as agent behaviour.
 4. `runner/manifest.py`: per-cell `manifest.json` (config hash, git SHA, model digest, seeds, start/end, status).
 5. `runner/integrity.py`: the three checks (150 traces per cell; empirical injection rate within ±3 pp of p; tier attribution equals ground truth).
-6. CLI: `uv run polp run-cell <cell-id>` and `uv run polp check-cell <cell-id>`.
+6. CLI: `uv run privilege-drift run-cell <cell-id>` and `uv run privilege-drift check-cell <cell-id>`.
 7. Test: kill a batch mid-run, restart, and confirm no duplicates and no corrupted files; plant an error and confirm the check fails.
 **Acceptance:** crash-resume test and planted-error test pass.
 **Blocked by (set as GitHub relationship):** "Record telemetry for every tool call"; "Build the failure injector"; "Define the mediator interface and the no-mediator arm"

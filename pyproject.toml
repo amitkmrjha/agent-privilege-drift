@@ -1,5 +1,5 @@
 [project]
-name = "polp"
+name = "privilege-drift"
 version = "0.1.0"
 description = "Privilege drift of LLM agents under tool-failure pressure: harness, mediators and analysis"
 authors = [
@@ -26,7 +26,7 @@ dependencies = [
 ]
 
 [project.scripts]
-polp = "polp:main"
+privilege-drift = "privilege_drift:main"
 
 [build-system]
 requires = ["uv_build>=0.11.17,<0.12.0"]

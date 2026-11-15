@@ -1,7 +1,7 @@
 """Smoke test: the package imports and exposes a version."""
 
-import polp
+import privilege_drift
 
 
 def test_package_imports() -> None:
-    assert polp.__version__
+    assert privilege_drift.__version__
