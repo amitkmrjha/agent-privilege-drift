@@ -353,5 +353,5 @@ Note the overlaps: A4 and A5 overlap in W7–8, and A6 and A7 in W12–13. Keep 
 - [ ] Locate ToolPrivBench, SEAgent and AgentDojo code and data (D1). Note licences.
 - [ ] Create the repo, `uv init`, `ollama pull`, run the §3.5 smoke tests.
 - [ ] Read the ToolPrivBench paper for scoring rules and the scenario format.
-- [ ] Open `docs/decisions.md` and answer D2–D8 and D11 in writing.
+- [ ] Open `docs/decisions/` and answer D2–D8 and D11 in writing.
 - [ ] Prototype the ReAct loop against one scenario with a real Llama call.

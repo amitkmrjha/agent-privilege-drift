@@ -134,7 +134,7 @@ These are fixed by the proposal. Do not change them after the pre-registration f
 | T0.1 | Clone repo; add README (study summary), MIT LICENSE, `.gitignore`, `CITATION.cff` | Repo skeleton pushed | README states RQs, status, how to run | P0 | 1 | |
 | T0.2 | Initialise `uv` project and the folder layout from `docs/plan/IMPLEMENTATION_PLAN.md` §2 | `pyproject.toml`, `uv.lock`, empty modules | `uv run pytest` runs (0 tests ok) | P0 | 1.5 | T0.1 |
 | T0.3 | Set up the GitHub Project: milestones M0–M8, labels per workstream, fields (Priority, Estimate); create one issue per task in this section | Board populated | Every T-ID has an issue | P1 | 1.5 | T0.1 |
-| T0.4 | Create `docs/decisions.md` with D2–D14 and answer each | Decision log | All open decisions have an answer or an owner/date | P0 | 1 | |
+| T0.4 | Create `docs/decisions/` with D2–D14 and answer each | Decision log | All open decisions have an answer or an owner/date | P0 | 1 | |
 | T0.5 | **Verify benchmark availability (D1):** locate ToolPrivBench, AgentDojo, SEAgent code/data, licences, and confirm each cited 2026 preprint exists (I8) | `docs/research-reference/sources.md` | Each source has a URL, licence, and verified status | P0 | 1.5 | |
 
 ### WS2 Harness build
@@ -161,7 +161,7 @@ These are fixed by the proposal. Do not change them after the pre-registration f
 | T3.1 | Pilot: ~10 scenarios × 3 seeds × 3 rates × 3 mediators on Llama; measure s/run, calls/run, tokens/run | `docs/pilot.md` | Throughput table filled in | P0 | 3 | T2.11 |
 | T3.2 | Check p = 0 baseline vs the published ≈ 0.35 violation rate; check parse-error, max-steps-hit and classifier-failure rates | Pilot checks | Each rate under about 5 %, or the prompt fixed | P0 | 1 | T3.1 |
 | T3.3 | Power: Monte-Carlo with pilot variance (MDE 12 pp, n = 50) | `analysis/power.py`, result | Power ≥ 0.80 or the five-seed contingency decided | P0 | 2 | T3.1 |
-| T3.4 | Resolve inconsistencies I1–I8 and decisions D2–D14 | Updated `docs/decisions.md` | All resolved in writing | P0 | 1 | T0.4 |
+| T3.4 | Resolve inconsistencies I1–I8 and decisions D2–D14 | Updated `docs/decisions/` | All resolved in writing | P0 | 1 | T0.4 |
 | T3.5 | Choose the frontier model by the three criteria; record evidence | `docs/frontier_choice.md` | Choice justified | P0 | 1 | T3.1 |
 | T3.6 | Write the pre-registration (items a–g of §7.8 plus D-decisions) | `prereg/preregistration.md` | Contains hypotheses with direction, contrast, floor, power, tests, levers, hashes | P0 | 2.5 | T3.3–T3.5 |
 | T3.7 | Commit, hash and tag (`prereg-v1`, `exp-v1`) | Tags, `HASHES.txt` | Tags pushed before any full run | P0 | 0.5 | T3.6 |

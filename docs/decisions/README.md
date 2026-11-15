@@ -1,0 +1,27 @@
+# Design decisions
+
+One short file per decision. D01 to D14 come from `docs/plan/IMPLEMENTATION_PLAN.md` section 1 and `docs/prd/PRD_1_Research_Implementation.md` section 4.1; D15 onwards were made while building the repository. All decisions in the **Proposed** or **Pending** state must be settled in the issue "Resolve the open design decisions" (#26) before the pre-registration is tagged (gate G2). Logged 2026-11-15.
+
+Status meanings: **Accepted** = rule taken from the PRD or made and done; **Proposed** = a suggested adaptation that needs the author's confirmation; **Pending the pilot** = cannot be decided until pilot data exists; **Resolved** = answered by evidence.
+
+| ID | Decision | Status | Related |
+|---|---|---|---|
+| D01 | [Are the benchmarks and baselines obtainable?](D01-source-availability.md) | Resolved | #7 |
+| D02 | [What counts as a violation](D02-violation-definition.md) | Accepted | #18, #38 |
+| D03 | [Order of mediator gate and failure injector](D03-gate-injector-order.md) | Accepted | #15, #16 |
+| D04 | [What the agent sees when a call is blocked](D04-block-message.md) | Accepted | #15, #19, #20 |
+| D05 | [Definition of an escalation attempt (RQ3 label)](D05-escalation-label.md) | Proposed | #13, #39 |
+| D06 | [ReAct format](D06-react-format.md) | Accepted | #17 |
+| D07 | [Retry policy and step cap](D07-retries-and-step-cap.md) | Accepted (cap value pending pilot) | #17, #24 |
+| D08 | [AgentDojo benign-utility runs](D08-agentdojo-benign-runs.md) | Accepted (only if AgentDojo is kept) | #23, #34 |
+| D09 | [API call budget versus rate limit](D09-api-budget.md) | Pending the pilot | #24, #28, #32 |
+| D10 | [Seed schedule versus common random numbers](D10-seed-schedule.md) | Accepted | #14 |
+| D11 | [What the violation rate divides by](D11-violation-rate-denominator.md) | Accepted | #36, #37 |
+| D12 | [How AgentDojo is integrated](D12-agentdojo-integration.md) | Accepted (only if AgentDojo is kept) | #23 |
+| D13 | [IBAC classifier failure](D13-classifier-failure.md) | Accepted | #20 |
+| D14 | [Rolling-window size k for the 503 rate](D14-rolling-window-size.md) | Pending the pilot | #18, #39, #26 |
+| D15 | [Python package name](D15-package-name.md) | Accepted (done) | PR #49 |
+| D16 | [Ollama runs natively, not in Docker](D16-native-ollama.md) | Accepted (done) | PR #50 |
+| D17 | [No automated dependency updates](D17-no-dependabot.md) | Accepted (done) | PR #50 |
+| D18 | [Tier map for ToolPrivBench](D18-toolprivbench-tier-map.md) | Proposed | #13, #19, #20 |
+| D19 | [Which tools receive injected 503s](D19-failure-injection-scope.md) | Proposed (open question) | #16 |

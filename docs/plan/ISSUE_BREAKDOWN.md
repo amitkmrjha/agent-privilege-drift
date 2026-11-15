@@ -86,7 +86,7 @@ Pick any open issue that is not blocked, highest priority first, then earliest p
 ### Write the design decisions log
 **Priority / estimate (project fields):** P0, 1 h
 **Goal:** write down every open design decision so code and pre-registration agree.
-**Steps:** create `docs/decisions.md`; copy decisions D2–D14 from PRD 1 §4.1; for each give the chosen rule, one line of rationale and the date. Leave items that need the pilot marked "pending the pilot issues".
+**Steps:** create `docs/decisions/` (one file per decision plus a README index); copy decisions D2–D14 from PRD 1 §4.1; for each give the chosen rule, one line of rationale and the date. Leave items that need the pilot marked "pending the pilot issues".
 **Acceptance:** each decision has an answer or a named task and date.
 **Blocked by (set as GitHub relationship):** nothing. **Notes:** revisit in "Resolve the open design decisions" once the pilot results are in.
 
@@ -182,7 +182,7 @@ Pick any open issue that is not blocked, highest priority first, then earliest p
 **Goal:** the strongest published baseline.
 **Steps:** read the paper's policy model; encode the role-to-tool matrix in `configs/policies/mac_matrix.yaml`; implement call-time check in `mediators/mac.py`; document how each scenario's role is assigned; test allowed and blocked hand-built cases; run the conformance suite.
 **Acceptance:** blocks and allows exactly as the matrix says.
-**Blocked by (set as GitHub relationship):** "Define the mediator interface and the no-mediator arm"; "Verify the benchmarks and baselines are available". **Notes:** if no official code exists, record "reimplemented from paper" in `docs/decisions.md`.
+**Blocked by (set as GitHub relationship):** "Define the mediator interface and the no-mediator arm"; "Verify the benchmarks and baselines are available". **Notes:** if no official code exists, record "reimplemented from paper" in `docs/decisions/`.
 
 ### Build the IBAC mediator
 **Priority / estimate (project fields):** P0, 5 h
@@ -247,7 +247,7 @@ Pick any open issue that is not blocked, highest priority first, then earliest p
 
 ### Resolve the open design decisions
 **Priority / estimate (project fields):** P0, 1 h
-**Steps:** answer I1–I8 (PRD 1 §5) and the remaining D-decisions using the pilot; update `docs/decisions.md`.
+**Steps:** answer I1–I8 (PRD 1 §5) and the remaining D-decisions using the pilot; update `docs/decisions/`.
 **Acceptance:** nothing marked pending.
 **Blocked by (set as GitHub relationship):** "Sanity-check the pilot results"; "Write the design decisions log"
 
