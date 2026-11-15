@@ -45,10 +45,10 @@ The proposal leaves these open. Each changes what you build or measure, and each
 
 ## 2. Repository layout
 
-Put the project in its own folder, for example `~/ws/upgrad/ms/polp-failure-pressure/`.
+Put the project in its own folder, for example `~/ws/upgrad/ms/agent-privilege-drift/`.
 
 ```
-polp-failure-pressure/
+agent-privilege-drift/
 ├── pyproject.toml            # uv-managed, pinned
 ├── uv.lock
 ├── .python-version           # 3.12
@@ -66,7 +66,7 @@ polp-failure-pressure/
 │   ├── tiers/                # toolprivbench_tiers.yaml, agentdojo_tiers.yaml
 │   ├── policies/             # mac_matrix.yaml, ibac_policy.yaml
 │   └── intents.yaml          # the 8-category taxonomy
-├── src/polp/
+├── src/privilege_drift/
 │   ├── schema.py             # MCP-compatible Scenario/Tool/ToolCall pydantic models
 │   ├── data/                 # loaders + normalisers for ToolPrivBench, AgentDojo
 │   ├── llm/                  # LiteLLM client, Ollama options, response cache
@@ -95,9 +95,9 @@ brew install uv ollama git
 uv python install 3.12
 
 # Project
-mkdir -p ~/ws/upgrad/ms/polp-failure-pressure && cd $_
+mkdir -p ~/ws/upgrad/ms/agent-privilege-drift && cd $_
 git init
-uv init --package --python 3.12 --name polp
+uv init --package --python 3.12 --name privilege-drift
 ```
 
 ### 3.2 Dependencies
