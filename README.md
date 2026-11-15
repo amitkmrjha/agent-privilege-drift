@@ -44,7 +44,7 @@ make docker-build && docker compose run --rm harness
 make docker-test
 ```
 
-For real runs on a Mac, use the native Ollama install; the optional `ollama` compose profile is for Linux or CI (Docker on macOS has no GPU access). AI-agent guidance for contributors is in [AGENTS.md](AGENTS.md).
+Ollama is not containerised: use the native install (`ollama pull llama3.1:8b-instruct-q4_K_M`), since Docker on macOS has no GPU access. AI-agent guidance for contributors is in [AGENTS.md](AGENTS.md).
 
 `make pilot`, `make run-cell` and `make analyse` are placeholders that exit with an error until the harness is built (Phases 1 to 4). This section will be updated as they land.
 

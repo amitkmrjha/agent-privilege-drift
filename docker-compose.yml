@@ -1,13 +1,12 @@
 # Reproducible environment for the harness.
 #
-#   docker compose run --rm harness              # run the CLI in the runtime image
-#   docker compose run --rm test                 # run the test suite
-#   docker compose --profile ollama up -d ollama # OPTIONAL local Ollama (see below)
+#   docker compose run --rm harness   # run the CLI in the runtime image
+#   docker compose run --rm test      # run the test suite
 #
-# Ollama: for real experiment runs on a Mac, use the NATIVE Ollama install (Docker on macOS
-# has no GPU access, so a containerised Llama is far slower). The `ollama` service below is
-# for Linux or CI machines. By default the harness talks to the host's native Ollama.
-# To use the container instead:  OLLAMA_API_BASE=http://ollama:11434 docker compose ...
+# Ollama is NOT containerised here. Use the native Ollama install on the host: Docker on
+# macOS has no GPU access, so a containerised Llama would be far slower and would make the
+# recorded latency numbers differ from the native ones. The harness reaches the host's
+# Ollama through host.docker.internal; override with OLLAMA_API_BASE if it runs elsewhere.
 services:
   harness:
     build:
@@ -29,16 +28,3 @@ services:
       context: .
       target: test
     image: agent-privilege-drift:test
-
-  ollama:
-    profiles: ["ollama"]
-    image: ollama/ollama:latest
-    ports:
-      - "127.0.0.1:11434:11434"   # loopback only
-    environment:
-      OLLAMA_NUM_PARALLEL: "1"    # clean latency numbers (implementation plan §3.3)
-    volumes:
-      - ollama-models:/root/.ollama
-
-volumes:
-  ollama-models: {}
