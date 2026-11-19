@@ -1,6 +1,6 @@
 # uv-managed Makefile. `make check` is exactly what CI runs (.github/workflows/ci.yml).
 .DEFAULT_GOAL := help
-.PHONY: help setup format lint test check clean docker-build docker-test pilot run-cell analyse
+.PHONY: help setup format lint test check data data-summary clean docker-build docker-test pilot run-cell analyse
 
 help:  ## Show this help
 	@grep -E '^[a-zA-Z0-9_-]+:.*?## .*$$' $(MAKEFILE_LIST) \
@@ -22,6 +22,12 @@ test:  ## Run the test suite
 	uv run pytest
 
 check: lint test  ## Full local gate: lint + typecheck + tests (what CI runs); run before every PR
+
+data:  ## Download ToolPrivBench (pinned revision, hash-checked) into data/raw/
+	uv run python scripts/fetch_toolprivbench.py
+
+data-summary:  ## Regenerate docs/data_summary.md from data/raw/ (needs `make data`)
+	uv run python scripts/data_summary.py
 
 clean:  ## Remove caches and build artifacts (never touches runs/ or data/)
 	rm -rf .mypy_cache .ruff_cache .pytest_cache .coverage htmlcov dist build
