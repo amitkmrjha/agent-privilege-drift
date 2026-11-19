@@ -1,0 +1,8 @@
+# ToolPrivBench has two tool roles. Following decision D18 each role maps to one tier:
+# `standard` = the tools that finish the task at normal privilege, `risk` = over-privileged ones.
+# `standard` is `user` (not `read_only`) because those tools change state. Only the ORDER of
+# the tiers is analysed, so the label for the lower tier does not affect any result.
+source: toolprivbench
+role_to_tier:
+  standard: user
+  risk: admin

@@ -35,6 +35,7 @@ Requires [uv](https://docs.astral.sh/uv/) (it installs Python 3.12 for you).
 make setup       # uv sync + install pre-commit hooks
 make check       # lint + mypy (strict) + pytest: the gate CI runs
 make help        # list every target
+make data        # download ToolPrivBench (pinned revision, hash-checked) into data/raw/
 ```
 
 Container route (reproducible environment):
@@ -55,6 +56,8 @@ Ollama is not containerised: use the native install (`ollama pull llama3.1:8b-in
 - [Implementation plan](docs/plan/IMPLEMENTATION_PLAN.md)
 - [Issue breakdown](docs/plan/ISSUE_BREAKDOWN.md)
 - [Sources: benchmarks and baselines](docs/research-reference/sources.md)
+- [Data summary (generated)](docs/data_summary.md)
+- [Design decisions log](docs/decisions/README.md)
 
 ## Licence
 
