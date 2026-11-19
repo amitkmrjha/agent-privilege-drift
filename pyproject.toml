@@ -55,7 +55,7 @@ select = ["E", "F", "W", "I", "B", "UP", "SIM"]
 [tool.mypy]
 python_version = "3.12"
 strict = true
-files = ["src", "tests"]
+files = ["src", "tests", "scripts"]
 plugins = ["pydantic.mypy"]
 
 [[tool.mypy.overrides]]
@@ -64,4 +64,7 @@ ignore_missing_imports = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "-ra --strict-markers"
+addopts = "-ra --strict-markers -m 'not integration'"
+markers = [
+    "integration: needs a live local Ollama server (run with -m integration)",
+]
