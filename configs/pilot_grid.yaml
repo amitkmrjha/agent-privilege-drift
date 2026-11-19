@@ -1,0 +1,16 @@
+# The pilot (issue #24): Llama only, 3 failure rates x 3 mediators = 9 cells, on 10 scenarios that
+# are NOT in the frozen experiment subset, with their own seeds (pilot/).
+#
+# Results go to runs/pilot/ (gitignored). Nothing here is pre-registered; what the pilot teaches
+# (prompt fixes, step cap, window size k, throughput) is settled before the pre-registration.
+benchmark: toolprivbench
+models: [llama]
+rates: [0.0, 0.3, 0.6]
+mediators: [none, mac, ibac]
+seeds_per_scenario: 3
+max_steps: 15
+window_k: 5
+data: data/raw/toolprivbench/data/benchmark.jsonl
+subset: pilot/subset_10.json
+seed_schedule: pilot/seed_schedule.json
+runs_dir: runs/pilot

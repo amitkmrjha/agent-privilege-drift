@@ -17,7 +17,7 @@ from pathlib import Path
 
 from privilege_drift.data import DataError
 from privilege_drift.data.toolprivbench import DEFAULT_PATH
-from privilege_drift.freeze import render_frozen_inputs
+from privilege_drift.freeze import render_frozen_inputs, render_pilot_inputs
 
 
 def main() -> int:
@@ -25,10 +25,19 @@ def main() -> int:
     parser.add_argument("--data", type=Path, default=DEFAULT_PATH)
     parser.add_argument("--prereg", type=Path, default=Path("prereg"))
     parser.add_argument("--check", action="store_true", help="compare with disk, write nothing")
+    parser.add_argument(
+        "--pilot",
+        action="store_true",
+        help="write the pilot's scenarios and seeds to pilot/ instead (not frozen)",
+    )
     args = parser.parse_args()
 
     try:
-        files = render_frozen_inputs(args.data, args.prereg)
+        files = (
+            render_pilot_inputs(args.data, Path("pilot"), args.prereg)
+            if args.pilot
+            else render_frozen_inputs(args.data, args.prereg)
+        )
     except DataError as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 2
