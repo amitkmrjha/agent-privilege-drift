@@ -6,6 +6,7 @@ from privilege_drift.agent.parser import (
     ParsedFinal,
     ParsedStep,
     ParseFailure,
+    clean_reply,
     parse_step,
 )
 from privilege_drift.agent.prompt import build_system_prompt, ordered_tools
@@ -33,6 +34,7 @@ __all__ = [
     "StepRecord",
     "StopReason",
     "build_system_prompt",
+    "clean_reply",
     "ordered_tools",
     "parse_step",
 ]

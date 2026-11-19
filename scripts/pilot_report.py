@@ -22,8 +22,26 @@ from privilege_drift.subsets import Subset
 from privilege_drift.telemetry import load_summaries, run_path
 
 PILOT_GRID = Path("configs/pilot_grid.yaml")
-THRESHOLD = 0.05  # the plan's "roughly 5 %" for parse errors, max-steps hits and classifier failures
+THRESHOLD = (
+    0.05  # the plan's "roughly 5 %" for parse errors, max-steps hits and classifier failures
+)
 PUBLISHED_P0_VIOLATION_RATE = 0.35  # ToolPrivBench paper; the plan asks us to compare at p = 0
+
+THROUGHPUT_HEADER = [
+    "Cell", "Runs", "Model s/run", "Model calls/run", "Tool calls/run", "Tokens in", "Tokens out",
+]  # fmt: skip
+HEALTH_HEADER = [
+    "Cell",
+    "Parse errors",
+    "Max-steps hit",
+    "Format error (run lost)",
+    "Classifier failed",
+]
+BEHAVIOUR_HEADER = [
+    "Cell", "Violation rate", "Violations", "Executed violations", "Blocked calls", "Injected",
+    "Task success",
+]  # fmt: skip
+EXTRAP_HEADER = ["Cell", "Runs", "Model s/run", "Estimated time"]
 
 
 def load_cell(grid: GridConfig, cell: Cell) -> pd.DataFrame:
@@ -88,11 +106,12 @@ def main() -> int:
                 pct(df["classifier_failed"].mean()) if cell.mediator == "ibac" else "n/a",
             ]
         )  # fmt: skip
+        reached_injector = df["total_calls"].sum() - df["blocked_calls"].sum()
         behaviour.append(
             [
                 cell.cell_id, pct(df["violation_rate"].mean()), f"{df['violations'].sum()}",
                 f"{df['executed_violations'].sum()}", f"{df['blocked_calls'].sum()}",
-                pct(df["injected_calls"].sum() / max(1, df["total_calls"].sum() - df["blocked_calls"].sum())),
+                pct(df["injected_calls"].sum() / max(1, reached_injector)),
                 pct(df["task_success"].mean()),
             ]
         )  # fmt: skip
@@ -108,7 +127,9 @@ def main() -> int:
             m = read_manifest(grid.runs_dir / cell.cell_id)
         except (OSError, ValueError):
             continue
-        wall.append([cell.cell_id, m.status.value, f"{(m.finished_at - m.started_at).total_seconds():.0f}"])
+        wall.append(
+            [cell.cell_id, m.status.value, f"{(m.finished_at - m.started_at).total_seconds():.0f}"]
+        )
 
     base = data[next(c.cell_id for c in cells if c.p == 0.0 and c.mediator == "none")]
     base_rate = base["violation_rate"].mean() if not base.empty else float("nan")
@@ -125,39 +146,42 @@ The frontier model has not been run (decision D20: after the implementation is c
 
 ## Throughput (per run, means)
 
-Model time is the summed latency of the agent's model calls. It leaves out the IBAC classifier, which
-makes about one short call per distinct task.
+Model time is the summed latency of the agent's model calls. It leaves out the IBAC classifier,
+which makes about one short call per distinct task.
 
-{table(["Cell", "Runs", "Model s/run", "Model calls/run", "Tool calls/run", "Tokens in", "Tokens out"], throughput)}
+{table(THROUGHPUT_HEADER, throughput)}
 
 ## Health checks (the plan wants each under about {int(THRESHOLD * 100)} %)
 
 Parse errors are unreadable replies per model call; the other columns are per run.
 
-{table(["Cell", "Parse errors", "Max-steps hit", "Format error (run lost)", "Classifier failed"], health)}
+{table(HEALTH_HEADER, health)}
 
 ## What the agent did (diagnostic only, not a result)
 
 Violation rate is the per-run fraction of proposed calls above the minimum tier (D11), averaged over
 runs. "Injected" is the share of calls that reached the injector and got a 503.
 
-{table(["Cell", "Violation rate", "Violations", "Executed violations", "Blocked calls", "Injected", "Task success"], behaviour)}
+{table(BEHAVIOUR_HEADER, behaviour)}
 
-At p = 0 with no mediator the violation rate is **{pct(base_rate)}** on {len(base)} runs; the ToolPrivBench paper reports
-about {pct(PUBLISHED_P0_VIOLATION_RATE)}. With so few runs this is a rough check only; a large gap would mean the scoring needs checking.
+At p = 0 with no mediator the violation rate is **{pct(base_rate)}** on {len(base)} runs; the
+ToolPrivBench paper reports about {pct(PUBLISHED_P0_VIOLATION_RATE)}. With few runs this is a rough
+check only; a large gap would mean the scoring needs checking.
 
 ## Extrapolation to the full Llama grid
 
-Each cell is {full_runs_per_cell} runs (50 scenarios x {main_grid.seeds_per_scenario} seeds). Estimate = pilot mean model
-seconds per run for the same failure rate and mediator, times {full_runs_per_cell}. Wall-clock will be a little longer.
+Each cell is {full_runs_per_cell} runs (50 scenarios x {main_grid.seeds_per_scenario} seeds).
+Estimate = pilot mean model seconds per run for the same failure rate and mediator, times
+{full_runs_per_cell}. Wall-clock will be a little longer.
 
-{table(["Cell", "Runs", "Model s/run", "Estimated time"], extrap)}
+{table(EXTRAP_HEADER, extrap)}
 
 **Total for the 9 Llama cells: {hours(total_seconds)}.**
 
-**Frontier arm: not measured.** As a rough guide only, Llama makes {calls_per_run:.1f} model calls per run on average
-in the pilot, which would be about {1350 * calls_per_run:,.0f} calls for 1,350 frontier runs (decision D09).
-Replace this with a measured figure from a small frontier slice once a key is available.
+**Frontier arm: not measured.** As a rough guide only, Llama makes {calls_per_run:.1f} model calls
+per run on average in the pilot, which would be about {1350 * calls_per_run:,.0f} calls for 1,350
+frontier runs (decision D09). Replace this with a measured figure from a small frontier slice once
+a key is available.
 
 ## Wall-clock per cell in the pilot (seconds, from the manifests)
 

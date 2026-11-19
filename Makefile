@@ -1,6 +1,6 @@
 # uv-managed Makefile. `make check` is exactly what CI runs (.github/workflows/ci.yml).
 .DEFAULT_GOAL := help
-.PHONY: help setup format lint test check data data-summary subsets subsets-check update-golden clean docker-build docker-test list-cells run-cell check-cell pilot analyse
+.PHONY: help setup format lint test check data data-summary subsets subsets-check update-golden pilot-smoke clean docker-build docker-test list-cells run-cell check-cell pilot analyse
 
 help:  ## Show this help
 	@grep -E '^[a-zA-Z0-9_-]+:.*?## .*$$' $(MAKEFILE_LIST) \
@@ -57,6 +57,11 @@ pilot:  ## Run the pilot: 9 Llama cells on 10 scenarios outside the experiment s
 	@for c in $$(uv run privilege-drift list-cells --grid $(PILOT_GRID) | awk '{print $$2}'); do \
 		uv run privilege-drift run-cell $$c --grid $(PILOT_GRID) || exit 1; \
 		uv run privilege-drift check-cell $$c --grid $(PILOT_GRID) || exit 1; \
+	done
+
+pilot-smoke:  ## Small first pass over all 9 pilot cells (3 runs each, ~10 min) to check the setup before `make pilot`
+	@for c in $$(uv run privilege-drift list-cells --grid $(PILOT_GRID) | awk '{print $$2}'); do \
+		uv run privilege-drift run-cell $$c --limit 3 --grid $(PILOT_GRID) || exit 1; \
 	done
 
 list-cells:  ## List the grid's cells with their numbers and ids: make list-cells [GRID=configs/pilot_grid.yaml]

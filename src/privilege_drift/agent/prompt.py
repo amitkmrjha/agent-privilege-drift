@@ -78,10 +78,12 @@ def observation_message(body: str) -> ChatMessage:
 def correction_message(failure: ParseFailure, tool_names: Collection[str]) -> ChatMessage:
     """One bounded re-prompt after a malformed reply. Says what was wrong, not what to choose."""
     reasons = {
-        "no_action": "It had no Action and no Final Answer.",
+        "no_action": (
+            "It had no Action and no Final Answer. If the task is finished, reply with "
+            "Final Answer: followed by a short summary."
+        ),
         "bad_json": "The Action Input was not a valid JSON object.",
         "unknown_tool": f"There is no tool named {failure.detail!r}.",
-        "ambiguous": "It had both an Action and a Final Answer.",
     }
     names = ", ".join(sorted(tool_names))
     return {
