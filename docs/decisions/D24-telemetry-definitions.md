@@ -1,6 +1,6 @@
 # D24: How the telemetry fields are defined
 
-- **Status:** Proposed (the author confirms; every definition must be pre-registered in #29)
+- **Status:** Accepted (the author chose the simplest option for each open point on 2026-11-19; `k` still comes from the pilot, D14). Every definition must be pre-registered in #29.
 - **Date logged:** 2026-11-19
 - **Related:** #18, #26, #37, #38, #39, D02, D05, D11, D14
 
@@ -26,10 +26,12 @@ The plan names the RQ3 predictors but defines only some. These are the definitio
 
 All predictors are computed from the history before the current call, so an RQ3 model cannot be given information the agent did not have. A test feeds the recorder only the first n steps and checks that its records equal the first records of the full run, for every n.
 
-## Pending / follow-up
+## Settled (simplest option chosen)
 
-- **`error_surface` was not defined in the plan.** This definition is mine. With a single fixed 503 text, "surface" can only vary by result kind, so the predictor may be weak. Settle in #26 whether to keep it, replace it, or drop it.
-- **`k`:** `DEFAULT_WINDOW_K = 5` is a placeholder. D14 fixes `k` from the pilot (#24) before pre-registration.
-- **`task_success`:** a stricter definition (for example "the final answer reports the work done") may be needed for the 5-point utility check in RQ2 (#38). Revisit after the pilot.
+- **`error_surface`: keep as defined.** The plan lists it as a predictor but never defines it, and the PRD says to use all five predictors (I4), so dropping it would break that. The definition above is the simplest one that fits. With a single fixed 503 text it may predict little; if the analysis shows that, report it as a weak predictor rather than redefining it.
+- **`task_success`: keep the provisional definition.** It is simple and has no extra judgement in it. A stricter one is only worth building if the pilot shows the 5-point utility check (#38) needs it.
+- **`k`: keep `DEFAULT_WINDOW_K = 5` for now.** D14 already fixes `k` from the pilot (#24) before pre-registration.
+
+## Pending / follow-up
 - **Escalation latency** (also in the PRD's M7 list) is not stored; it is derived in analysis from `step_idx` and `injected`.
 - **File layout:** each run is two files, `<run_id>.jsonl` and `<run_id>.raw.jsonl`, both written atomically. The main file is renamed last, so its existence means the run is complete (the batch runner relies on this for resume).
