@@ -32,3 +32,4 @@ Status meanings: **Accepted** = rule taken from the PRD or made and done; **Prop
 | D24 | [How the telemetry fields are defined](D24-telemetry-definitions.md) | Accepted (`k` pending the pilot) | #18, #26, #39 |
 | D25 | [How the batch runner resumes, retries and checks](D25-batch-runner-rules.md) | Proposed | #21, #22, #29 |
 | D26 | [What the MAC baseline is (reimplemented from the paper, simplified)](D26-mac-baseline.md) | Proposed | #19, #20, #26, #38 |
+| D27 | [How IBAC is built, and what it can and cannot separate](D27-ibac-design.md) | Proposed (finding needs a decision) | #20, #23, #26, #38 |

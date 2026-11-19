@@ -23,6 +23,6 @@ Each rule keeps the batch restartable without supervision and keeps infrastructu
 
 ## Pending / follow-up
 
-- MAC is registered in `default_mediators()` (#19). IBAC (#20) registers itself the same way; until then an IBAC cell stops with "not implemented yet".
+- All three arms are registered in `default_mediators(llm)` (MAC in #19, IBAC in #20). An unknown mediator name stops the cell with "not implemented yet".
 - The real throughput table comes from the pilot (#24).
 - The CLI is `privilege-drift run-cell <cell id> [--limit N]` and `check-cell <cell id>` (also `make run-cell CELL=...`). Running a whole cell calls the model for hours; nothing runs it unasked.
