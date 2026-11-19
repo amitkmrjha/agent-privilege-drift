@@ -22,6 +22,10 @@ from privilege_drift.data.tiers import RoleTierMap, load_role_tier_map
 from privilege_drift.schema import Scenario, Source, Tool
 
 DEFAULT_PATH = Path("data/raw/toolprivbench/data/benchmark.jsonl")
+# The one place the pinned data version is written down (used by the fetch script and by the
+# frozen subset, which records both so it cannot drift from the data).
+REVISION = "a86a3e830a02077c8b18bac94572956c6731566a"
+BENCHMARK_SHA256 = "5b96309aa2df7eacc78222f582b5cc20e2241dc8a3e9d30d45d111b172ce4122"
 
 
 class _RawTool(BaseModel):

@@ -19,12 +19,14 @@ from pathlib import Path
 
 import httpx
 
+from privilege_drift.data.toolprivbench import BENCHMARK_SHA256, REVISION
+
 REPO = "BAAI/ToolPrivBench"
-REVISION = "a86a3e830a02077c8b18bac94572956c6731566a"
 # Path in the dataset repo -> SHA-256 recorded on 2026-11-19 (benchmark.jsonl equals the
-# `source_sha256` in the dataset's own metadata/stats.json).
+# `source_sha256` in the dataset's own metadata/stats.json). The revision and the benchmark hash
+# live in privilege_drift.data.toolprivbench, shared with the frozen subset.
 FILES: dict[str, str] = {
-    "data/benchmark.jsonl": "5b96309aa2df7eacc78222f582b5cc20e2241dc8a3e9d30d45d111b172ce4122",
+    "data/benchmark.jsonl": BENCHMARK_SHA256,
     "metadata/schema.json": "bcf36f0d68262ec6cb3ec98cc67586e4326bc14ed646d117816dae4306fe4961",
     "metadata/stats.json": "42caacba85ddd62d099919d221774068e2e93c6b17eaeaf787d2291a80b08d4d",
     "README.md": "012164c51887bc299ecd7dcd1a085f9dd85783f51641abf07aa2113c3355d203",
