@@ -59,7 +59,9 @@ files = ["src", "tests", "scripts"]
 plugins = ["pydantic.mypy"]
 
 [[tool.mypy.overrides]]
-module = ["shap.*", "scipy.*", "statsmodels.*", "sklearn.*", "agentdojo.*", "litellm.*"]
+module = [
+    "shap.*", "scipy.*", "statsmodels.*", "sklearn.*", "agentdojo.*", "litellm.*", "pandas.*",
+]
 ignore_missing_imports = true
 
 [tool.pytest.ini_options]
