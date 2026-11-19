@@ -1,6 +1,6 @@
 # uv-managed Makefile. `make check` is exactly what CI runs (.github/workflows/ci.yml).
 .DEFAULT_GOAL := help
-.PHONY: help setup format lint test check data data-summary subsets subsets-check clean docker-build docker-test list-cells run-cell check-cell pilot analyse
+.PHONY: help setup format lint test check data data-summary subsets subsets-check update-golden clean docker-build docker-test list-cells run-cell check-cell pilot analyse
 
 help:  ## Show this help
 	@grep -E '^[a-zA-Z0-9_-]+:.*?## .*$$' $(MAKEFILE_LIST) \
@@ -34,6 +34,9 @@ subsets:  ## Write the frozen scenario subset and seed schedule under prereg/ (n
 
 subsets-check:  ## Fail if prereg/ subsets or seed schedule differ from a fresh regeneration
 	uv run python scripts/make_subsets.py --check
+
+update-golden:  ## Rewrite tests/golden/pipeline_cell.json after an intended change (review the diff!)
+	UPDATE_GOLDEN=1 uv run pytest tests/test_pipeline.py -k golden_metrics -q
 
 clean:  ## Remove caches and build artifacts (never touches runs/ or data/)
 	rm -rf .mypy_cache .ruff_cache .pytest_cache .coverage htmlcov dist build
