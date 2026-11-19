@@ -28,3 +28,4 @@ Status meanings: **Accepted** = rule taken from the PRD or made and done; **Prop
 | D20 | [Run the open model first, repeat with the frontier model later](D20-staged-execution.md) | Accepted | #12, #28, #29, #31, #32 |
 | D21 | [How the subset is drawn and how seeds are dealt](D21-subset-and-seed-method.md) | Proposed | #14, #29 |
 | D22 | [How the failure draws are made](D22-failure-draw-method.md) | Proposed | #16, #21 |
+| D23 | [What the agent sees, and how unreadable replies are handled](D23-agent-prompt-and-parse-rules.md) | Proposed | #17, #24, #29 |

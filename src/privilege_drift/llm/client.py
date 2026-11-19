@@ -106,11 +106,12 @@ class LLMClient:
         *,
         model_key: str,
         seed: int | None = None,
+        stop: Sequence[str] | None = None,
     ) -> LLMResult:
         spec = self.config.spec(model_key)
         api_base = self._api_base(spec)
         fingerprint = self._fingerprint(spec, api_base)
-        params = self._sampling_params(spec, seed)
+        params = self._sampling_params(spec, seed, stop)
 
         key = self._cache_key(spec, messages, params, fingerprint, seed)
         if key is not None:
@@ -135,7 +136,9 @@ class LLMClient:
 
     # ---- request construction -------------------------------------------------------------
 
-    def _sampling_params(self, spec: ModelSpec, seed: int | None) -> dict[str, Any]:
+    def _sampling_params(
+        self, spec: ModelSpec, seed: int | None, stop: Sequence[str] | None = None
+    ) -> dict[str, Any]:
         """Parameters that define the request, and therefore the cache key."""
         sampling = self.config.sampling
         params: dict[str, Any] = {
@@ -145,6 +148,8 @@ class LLMClient:
         }
         if seed is not None:
             params["seed"] = seed
+        if stop:
+            params["stop"] = list(stop)
         if spec.num_ctx is not None:
             params["num_ctx"] = spec.num_ctx
         return params
