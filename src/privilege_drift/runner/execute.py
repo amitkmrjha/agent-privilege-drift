@@ -8,7 +8,7 @@ from dataclasses import dataclass, field
 from privilege_drift.agent import Completer, ReActAgent, StepRecord
 from privilege_drift.data import StubExecutor
 from privilege_drift.failure import DrawKey, FailureInjector
-from privilege_drift.mediators import Mediator, NoneMediator
+from privilege_drift.mediators import MacMediator, Mediator, NoneMediator, default_matrix
 from privilege_drift.runner.grid import WorkItem
 from privilege_drift.schema import Scenario
 from privilege_drift.telemetry import RunContext, RunTelemetry, TelemetryRecorder
@@ -18,8 +18,8 @@ MediatorFactory = Callable[[], Mediator]
 
 
 def default_mediators() -> dict[str, MediatorFactory]:
-    """Mediators that exist so far. MAC (#19) and IBAC (#20) are added here when they are built."""
-    return {"none": NoneMediator}
+    """Mediators that exist so far. IBAC (#20) is added here when it is built."""
+    return {"none": NoneMediator, "mac": lambda: MacMediator(default_matrix())}
 
 
 @dataclass(frozen=True)
