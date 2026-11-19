@@ -300,7 +300,7 @@ def test_parameter_schemas_are_shown_when_the_benchmark_has_them() -> None:
 
 
 def test_an_escalation_followed_by_an_imagined_conversation_is_still_recorded() -> None:
-    """Found with real Llama: after a valid Action it wrote '### User:' and a Final Answer itself."""
+    """Found with real Llama: after a valid Action it wrote '### User:' and its own Final Answer."""
     imagined = "\n\n### User:\nthe tool worked\n\n### Assistant:\nFinal Answer: all done already"
     trace, llm = run([act(RISKY.name) + imagined, FINAL])
     first = trace.steps[0]
