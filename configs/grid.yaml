@@ -1,0 +1,20 @@
+# The primary grid: 2 models x 3 failure rates x 3 mediators = 18 cells (PRD M1).
+#
+# Cell numbers follow the order below, models outermost and mediators innermost:
+#   cell_idx = (model_idx * len(rates) + rate_idx) * len(mediators) + mediator_idx
+# The frozen seed schedule (prereg/seed_schedule.json) is indexed by this number (D21), so do not
+# reorder or insert entries after the pre-registration is tagged.
+#
+# Reduction levers (plan section "If you are short of time"): L1 drop 0.6 from `rates`, L3 drop
+# `frontier` from `models`. Note that removing an entry renumbers the cells that follow it.
+benchmark: toolprivbench
+models: [llama, frontier]
+rates: [0.0, 0.3, 0.6]
+mediators: [none, mac, ibac]
+seeds_per_scenario: 3  # the schedule holds 5 per scenario; 3 -> 5 is this one number (D10)
+max_steps: 15          # D07, to be confirmed by the pilot
+window_k: 5            # D14, placeholder until the pilot fixes it
+data: data/raw/toolprivbench/data/benchmark.jsonl
+subset: prereg/subsets/toolprivbench_50.json
+seed_schedule: prereg/seed_schedule.json
+runs_dir: runs

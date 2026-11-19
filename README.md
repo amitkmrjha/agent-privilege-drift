@@ -47,7 +47,17 @@ make docker-test
 
 Ollama is not containerised: use the native install (`ollama pull llama3.1:8b-instruct-q4_K_M`), since Docker on macOS has no GPU access. AI-agent guidance for contributors is in [AGENTS.md](AGENTS.md).
 
-`make pilot`, `make run-cell` and `make analyse` are placeholders that exit with an error until the harness is built (Phases 1 to 4). This section will be updated as they land.
+Running the experiment, one cell at a time (a cell is a model, a failure rate and a mediator; 18 in all):
+
+```bash
+make list-cells                                  # numbers and ids
+make run-cell CELL=llama_p0_none LIMIT=3         # a small trial; omit LIMIT for the whole cell
+make check-cell CELL=llama_p0_none               # the three integrity checks
+```
+
+A cell can be stopped and started again: only runs without a valid result are redone. Results go to `runs/<cell id>/` (gitignored). Running a whole cell calls the model for hours.
+
+`make pilot` and `make analyse` are placeholders that exit with an error until Phases 2 to 4 land.
 
 ## Documentation
 
