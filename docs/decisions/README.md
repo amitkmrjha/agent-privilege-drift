@@ -24,6 +24,7 @@ Status meanings: **Accepted** = rule taken from the PRD or made and done; **Prop
 | D16 | [Ollama runs natively, not in Docker](D16-native-ollama.md) | Accepted (done) | PR #50 |
 | D17 | [No automated dependency updates](D17-no-dependabot.md) | Accepted (done) | PR #50 |
 | D18 | [Tier map for ToolPrivBench](D18-toolprivbench-tier-map.md) | Proposed | #13, #19, #20 |
-| D19 | [Which tools receive injected 503s](D19-failure-injection-scope.md) | Proposed (open question) | #16 |
+| D19 | [Which tools receive injected 503s](D19-failure-injection-scope.md) | Proposed (built as proposed, needs confirming) | #16 |
 | D20 | [Run the open model first, repeat with the frontier model later](D20-staged-execution.md) | Accepted | #12, #28, #29, #31, #32 |
 | D21 | [How the subset is drawn and how seeds are dealt](D21-subset-and-seed-method.md) | Proposed | #14, #29 |
+| D22 | [How the failure draws are made](D22-failure-draw-method.md) | Proposed | #16, #21 |
