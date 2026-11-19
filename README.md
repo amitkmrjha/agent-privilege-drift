@@ -16,7 +16,7 @@ MS research project (LJMU). A Python harness that runs an LLM agent (ReAct) on b
 
 ## Status
 
-**Phase 0: project setup** (gate G0). Progress is tracked on the [project board](https://github.com/users/amitkmrjha/projects/3).
+**Phase 1: harness build** (gate G1): the agent, failure injector, three mediators, telemetry and batch runner are built, and the fake-model integration and golden tests pass. Nothing has been run on a real model yet. The optional AgentDojo integration (#23) is open. Next is Phase 2, the pilot and pre-registration. Progress is tracked on the [project board](https://github.com/users/amitkmrjha/projects/3).
 
 | Phase | Ends when |
 |---|---|
