@@ -1,6 +1,6 @@
 # uv-managed Makefile. `make check` is exactly what CI runs (.github/workflows/ci.yml).
 .DEFAULT_GOAL := help
-.PHONY: help setup format lint test check data data-summary subsets subsets-check clean docker-build docker-test pilot run-cell analyse
+.PHONY: help setup format lint test check data data-summary subsets subsets-check clean docker-build docker-test list-cells run-cell check-cell pilot analyse
 
 help:  ## Show this help
 	@grep -E '^[a-zA-Z0-9_-]+:.*?## .*$$' $(MAKEFILE_LIST) \
@@ -50,8 +50,16 @@ docker-test:  ## Run the test suite inside the test image
 pilot:  ## (placeholder) run the pilot, Phase 2
 	@echo "pilot: not implemented yet (see Phase 2)" >&2; exit 1
 
-run-cell:  ## (placeholder) run one experiment cell, Phase 1
-	@echo "run-cell: not implemented yet (see Phase 1)" >&2; exit 1
+list-cells:  ## List the 18 grid cells with their numbers and ids
+	uv run privilege-drift list-cells
+
+run-cell:  ## Run the unfinished runs of one cell: make run-cell CELL=llama_p0_none [LIMIT=5]
+	@test -n "$(CELL)" || { echo "usage: make run-cell CELL=<cell id> [LIMIT=<n>]" >&2; exit 2; }
+	uv run privilege-drift run-cell $(CELL) $(if $(LIMIT),--limit $(LIMIT),)
+
+check-cell:  ## Run the three integrity checks on one cell: make check-cell CELL=llama_p0_none
+	@test -n "$(CELL)" || { echo "usage: make check-cell CELL=<cell id>" >&2; exit 2; }
+	uv run privilege-drift check-cell $(CELL)
 
 analyse:  ## (placeholder) reproduce every number, Phase 4
 	@echo "analyse: not implemented yet (see Phase 4)" >&2; exit 1

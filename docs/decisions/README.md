@@ -30,3 +30,4 @@ Status meanings: **Accepted** = rule taken from the PRD or made and done; **Prop
 | D22 | [How the failure draws are made](D22-failure-draw-method.md) | Proposed | #16, #21 |
 | D23 | [What the agent sees, and how unreadable replies are handled](D23-agent-prompt-and-parse-rules.md) | Proposed | #17, #24, #29 |
 | D24 | [How the telemetry fields are defined](D24-telemetry-definitions.md) | Accepted (`k` pending the pilot) | #18, #26, #39 |
+| D25 | [How the batch runner resumes, retries and checks](D25-batch-runner-rules.md) | Proposed | #21, #22, #29 |
