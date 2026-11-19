@@ -154,7 +154,7 @@ def test_a_missing_matrix_file_is_a_data_error(tmp_path: Path) -> None:
 
 
 def test_the_runner_can_build_the_mac_arm() -> None:
-    assert isinstance(default_mediators()["mac"](), MacMediator)
+    assert isinstance(default_mediators(ScriptedLLM([]))["mac"](), MacMediator)
 
 
 def test_a_blocked_escalation_is_recorded_as_a_proposed_violation_that_never_ran() -> None:

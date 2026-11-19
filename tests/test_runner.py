@@ -330,9 +330,9 @@ def test_a_missing_api_key_stops_the_whole_batch(mid: Setup) -> None:
 
 
 def test_an_unbuilt_mediator_is_a_clear_error(tmp_path: Path) -> None:
-    grid = make_grid(tmp_path, mediators=("ibac",))  # IBAC arrives in #20
+    grid = make_grid(tmp_path, mediators=("quantum",))
     item = plan_cell(grid, expand_cells(grid)[0], IDS, SCHEDULE)[0]
-    with pytest.raises(KeyError, match="'ibac' is not implemented yet"):
+    with pytest.raises(KeyError, match="'quantum' is not implemented yet"):
         run_item(item, deps(AutoLLM()))
 
 

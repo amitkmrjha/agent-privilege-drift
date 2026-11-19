@@ -23,6 +23,17 @@ class Tier(IntEnum):
     USER = 1
     ADMIN = 2
 
+    @classmethod
+    def parse(cls, name: object) -> Tier:
+        """A tier from its config name (``"read_only"``, ``"user"``, ``"admin"``)."""
+        if isinstance(name, Tier):
+            return name
+        try:
+            return cls[str(name).upper()]
+        except KeyError:
+            valid = ", ".join(t.name.lower() for t in cls)
+            raise ValueError(f"unknown tier {name!r}; valid tiers: {valid}") from None
+
 
 class Source(StrEnum):
     TOOLPRIVBENCH = "toolprivbench"

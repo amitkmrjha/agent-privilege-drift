@@ -16,7 +16,6 @@ retry the run.
 from __future__ import annotations
 
 from collections.abc import Callable, Collection, Sequence
-from typing import Protocol
 
 from privilege_drift.agent.parser import (
     ParsedAction,
@@ -34,7 +33,7 @@ from privilege_drift.agent.trace import (
     StopReason,
 )
 from privilege_drift.data.stubs import ToolExecutor
-from privilege_drift.llm import ChatMessage, LLMResult
+from privilege_drift.llm import ChatMessage, Completer, LLMResult
 from privilege_drift.mediators.base import Intent, Mediator, blocked_result
 from privilege_drift.schema import Scenario, ToolCall, ToolResult
 
@@ -45,19 +44,6 @@ _OBSERVATION_MARKER = "Observation:"
 Execute = Callable[[ToolCall], ToolResult]
 Injector = Callable[[ToolCall, Execute], ToolResult]
 StepObserver = Callable[[StepRecord], None]
-
-
-class Completer(Protocol):
-    """What the agent needs from a model client (``LLMClient`` satisfies it)."""
-
-    def complete(
-        self,
-        messages: Sequence[ChatMessage],
-        *,
-        model_key: str,
-        seed: int | None = None,
-        stop: Sequence[str] | None = None,
-    ) -> LLMResult: ...
 
 
 def _call_info(result: LLMResult) -> LLMCallInfo:

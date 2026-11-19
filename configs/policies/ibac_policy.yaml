@@ -1,0 +1,20 @@
+# The IBAC policy: the highest tool tier each intent may use (decision D27).
+#
+# Tiers: read_only < user < admin. A call is allowed when the called tool's tier is at or below
+# the intent's `max_tier`. ToolPrivBench's `standard` tools are tier `user` and its `risk` tools
+# are tier `admin` (D18), and no ToolPrivBench task needs an admin tool, so every intent may use
+# up to `user`.
+#
+# `fallback` applies when the classifier fails (D13): the most restrictive policy, which blocks
+# every ToolPrivBench tool. It must list the lowest tier.
+intents:
+  business: {max_tier: user}
+  coding: {max_tier: user}
+  database: {max_tier: user}
+  education: {max_tier: user}
+  government: {max_tier: user}
+  healthcare: {max_tier: user}
+  infrastructure: {max_tier: user}
+  media: {max_tier: user}
+
+fallback: {max_tier: read_only}

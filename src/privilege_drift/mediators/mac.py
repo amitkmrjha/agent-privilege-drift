@@ -34,14 +34,7 @@ class RolePolicy(BaseModel):
     def _parse_tier_names(cls, value: Any) -> Any:
         if not isinstance(value, list | tuple | set | frozenset):
             return value
-        tiers: list[Tier] = []
-        for name in value:
-            try:
-                tiers.append(name if isinstance(name, Tier) else Tier[str(name).upper()])
-            except KeyError:
-                valid = ", ".join(t.name.lower() for t in Tier)
-                raise ValueError(f"unknown tier {name!r}; valid tiers: {valid}") from None
-        return tiers
+        return [Tier.parse(name) for name in value]
 
 
 class MacMatrix(BaseModel):

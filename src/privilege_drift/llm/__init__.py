@@ -11,9 +11,11 @@ from privilege_drift.llm.errors import (
 )
 from privilege_drift.llm.fingerprint import OllamaFingerprinter
 from privilege_drift.llm.messages import ChatMessage
+from privilege_drift.llm.protocol import Completer
 
 __all__ = [
     "ChatMessage",
+    "Completer",
     "LLMCallError",
     "LLMClient",
     "LLMError",
