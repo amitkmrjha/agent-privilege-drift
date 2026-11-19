@@ -3,6 +3,8 @@
 Guidance for AI coding agents (Claude Code, Copilot, Cursor, Codex, ...) working in
 **agent-privilege-drift**. `CLAUDE.md` points here; this file is the single source of truth.
 
+**Resuming work? Read `docs/HANDOFF.md` first** (current state, open decisions, next steps).
+
 ## What this repo is
 
 A Python research harness for an MS thesis. It runs an LLM agent (ReAct) on benchmark

@@ -8,6 +8,12 @@ Leniencies (so formatting noise is not mistaken for behaviour): markers are case
 may be wrapped in ``**bold**`` or backticks; the tool name may be quoted; the JSON may sit in a
 code fence or be followed by chatter; a missing, empty, ``None``/``null``/``N/A`` input means "no
 arguments". If the model writes several actions in one reply, only the first is used.
+
+Found with the first real Llama runs (decision D23, update): the model sometimes carries on writing
+the rest of the conversation itself, with ``### User:`` and ``### Assistant:`` lines and an
+imagined result. ``clean_reply`` removes that, and whichever of Action and Final Answer comes first
+wins; everything after an Action is imagined, because only the system supplies the result. Without
+this, a real escalation could be thrown away as "ambiguous" and violations undercounted.
 """
 
 from __future__ import annotations
@@ -25,7 +31,6 @@ class FailureKind(StrEnum):
     NO_ACTION = "no_action"  # neither an Action nor a Final Answer
     BAD_JSON = "bad_json"  # Action Input is not a JSON object
     UNKNOWN_TOOL = "unknown_tool"  # the named tool is not offered in this scenario
-    AMBIGUOUS = "ambiguous"  # an Action and a Final Answer in the same reply
 
 
 class _Frozen(BaseModel):
@@ -60,6 +65,27 @@ _FENCE_END = re.compile(r"\n?[ \t]*```.*$", re.DOTALL)
 _EMPTY_INPUTS = {"", "none", "null", "n/a", "no input", "no arguments"}
 _NAME_NOISE = "`'\"*_ \t."
 _DETAIL_LIMIT = 80
+_OBSERVATION_MARKER = "Observation:"
+# A line that starts an imagined turn of the chat, such as "### User:".
+_TURN_MARKER = re.compile(r"^[ \t]*#{1,6}[ \t]*(?:User|Human|System)[ \t]*:", re.I | re.M)
+# A "### Assistant:" header the model puts in front of its own reply.
+_ASSISTANT_HEADER = re.compile(r"^[ \t]*#{1,6}[ \t]*Assistant[ \t]*:[ \t]*", re.I | re.M)
+# "Action: None", "Action: N/A", "Action: None (task is complete)": the model says it has no action.
+_NO_ACTION_WORDS = re.compile(r"^(?:none|null|n/?a|no action|nothing)\b", re.I)
+_SAYS_DONE = re.compile(r"\bnow know the final answer\b", re.I)
+
+
+def clean_reply(text: str) -> str:
+    """The part of a reply the model was meant to write.
+
+    Cuts at ``Observation:`` and at an imagined ``### User:`` turn (the system supplies both), and
+    removes ``### Assistant:`` headers. Safe to apply twice.
+    """
+    text = text.split(_OBSERVATION_MARKER, 1)[0]
+    cut = _TURN_MARKER.search(text)
+    if cut:
+        text = text[: cut.start()]
+    return _ASSISTANT_HEADER.sub("", text).strip()
 
 
 def _segments(text: str) -> list[tuple[str, str]]:
@@ -94,33 +120,33 @@ def _parse_arguments(body: str | None) -> dict[str, Any] | str:
 
 def parse_step(text: str, tool_names: Collection[str]) -> ParsedStep:
     """Turn one model reply into an action, a final answer, or a classified failure."""
-    segments = _segments(text)
+    segments = _segments(clean_reply(text))
     thought = next((body for label, body in segments if label == "thought"), "")
-    finals = [body for label, body in segments if label == "final answer"]
-    action_positions = [i for i, (label, _) in enumerate(segments) if label == "action"]
+    first_final = next(
+        (i for i, (label, _) in enumerate(segments) if label == "final answer"), None
+    )
+    position = next((i for i, (label, _) in enumerate(segments) if label == "action"), None)
 
-    if finals and action_positions:
-        return ParseFailure(
-            kind=FailureKind.AMBIGUOUS,
-            detail="reply has both an Action and a Final Answer",
-            thought=thought,
-        )
-    if finals:
-        return ParsedFinal(thought=thought, answer=finals[0])
-    if not action_positions:
+    # Whichever comes first counts; anything after an Action is imagined (see the module note).
+    if first_final is not None and (position is None or first_final < position):
+        return ParsedFinal(thought=thought, answer=segments[first_final][1])
+    if position is None:
+        if _SAYS_DONE.search(thought):
+            return ParsedFinal(thought=thought, answer="")
         return ParseFailure(
             kind=FailureKind.NO_ACTION,
             detail="reply has no Action and no Final Answer",
             thought=thought,
         )
 
-    position = action_positions[0]
     name = _clean_name(segments[position][1])
     if not name:
         return ParseFailure(
             kind=FailureKind.NO_ACTION, detail="Action has no tool name", thought=thought
         )
     if name not in tool_names:
+        if _NO_ACTION_WORDS.match(name):
+            return ParsedFinal(thought=thought, answer="")  # "Action: None": nothing left to do
         return ParseFailure(
             kind=FailureKind.UNKNOWN_TOOL, detail=name[:_DETAIL_LIMIT], thought=thought
         )

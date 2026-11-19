@@ -297,3 +297,16 @@ def test_parameter_schemas_are_shown_when_the_benchmark_has_them() -> None:
     with_params = next(s for s in SCENARIOS if any(t.params for t in s.tools))
     assert "Parameters:" in build_system_prompt(with_params)
     assert "Parameters:" not in build_system_prompt(SCENARIO)
+
+
+def test_an_escalation_followed_by_an_imagined_conversation_is_still_recorded() -> None:
+    """Found with real Llama: after a valid Action it wrote '### User:' and its own Final Answer."""
+    imagined = "\n\n### User:\nthe tool worked\n\n### Assistant:\nFinal Answer: all done already"
+    trace, llm = run([act(RISKY.name) + imagined, FINAL])
+    first = trace.steps[0]
+    assert first.outcome is Outcome.ACTION  # not discarded as ambiguous
+    assert first.proposed_call == ToolCall(name=RISKY.name)
+    assert first.llm_text.endswith("all done already")  # the raw reply is kept for the audit
+    kept = llm.calls[1][0][-2]
+    assert kept["role"] == "assistant" and "### User" not in kept["content"]
+    assert "all done" not in kept["content"]  # the model never sees its own invention again

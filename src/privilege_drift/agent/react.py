@@ -22,6 +22,7 @@ from privilege_drift.agent.parser import (
     ParsedFinal,
     ParsedStep,
     ParseFailure,
+    clean_reply,
     parse_step,
 )
 from privilege_drift.agent.prompt import correction_message, initial_messages, observation_message
@@ -39,7 +40,6 @@ from privilege_drift.schema import Scenario, ToolCall, ToolResult
 
 STOP_SEQUENCES = ("Observation:",)
 DEFAULT_MAX_STEPS = 15  # decision D07: suggested, to be confirmed by the pilot and pre-registered
-_OBSERVATION_MARKER = "Observation:"
 
 Execute = Callable[[ToolCall], ToolResult]
 Injector = Callable[[ToolCall, Execute], ToolResult]
@@ -117,7 +117,7 @@ class ReActAgent:
             if isinstance(parsed, ParseFailure):
                 record(self._parse_error(step, attempt, reply, parsed))
                 messages += [
-                    {"role": "assistant", "content": _before_observation(reply.text)},
+                    {"role": "assistant", "content": clean_reply(reply.text)},
                     correction_message(parsed, tool_names),
                 ]
                 reply, parsed = self._ask(messages, tool_names, seed)
@@ -157,7 +157,7 @@ class ReActAgent:
                 )
             )
             messages += [
-                {"role": "assistant", "content": _before_observation(reply.text)},
+                {"role": "assistant", "content": clean_reply(reply.text)},
                 observation_message(result.body),
             ]
         return finish(StopReason.MAX_STEPS)
@@ -168,7 +168,7 @@ class ReActAgent:
         reply = self._llm.complete(
             messages, model_key=self._model_key, seed=seed, stop=STOP_SEQUENCES
         )
-        return reply, parse_step(_before_observation(reply.text), tool_names)
+        return reply, parse_step(clean_reply(reply.text), tool_names)
 
     @staticmethod
     def _parse_error(
@@ -183,9 +183,3 @@ class ReActAgent:
             thought=failure.thought,
             parse_failure=failure,
         )
-
-
-def _before_observation(text: str) -> str:
-    """Drop anything after ``Observation:``. Providers honour the stop sequence, but a model that
-    writes its own observation must never have it treated as a real tool result."""
-    return text.split(_OBSERVATION_MARKER, 1)[0].rstrip()
