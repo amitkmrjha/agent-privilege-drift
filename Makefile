@@ -1,6 +1,6 @@
 # uv-managed Makefile. `make check` is exactly what CI runs (.github/workflows/ci.yml).
 .DEFAULT_GOAL := help
-.PHONY: help setup format lint test check data data-summary clean docker-build docker-test pilot run-cell analyse
+.PHONY: help setup format lint test check data data-summary subsets subsets-check clean docker-build docker-test pilot run-cell analyse
 
 help:  ## Show this help
 	@grep -E '^[a-zA-Z0-9_-]+:.*?## .*$$' $(MAKEFILE_LIST) \
@@ -28,6 +28,12 @@ data:  ## Download ToolPrivBench (pinned revision, hash-checked) into data/raw/
 
 data-summary:  ## Regenerate docs/data_summary.md from data/raw/ (needs `make data`)
 	uv run python scripts/data_summary.py
+
+subsets:  ## Write the frozen scenario subset and seed schedule under prereg/ (needs `make data`)
+	uv run python scripts/make_subsets.py
+
+subsets-check:  ## Fail if prereg/ subsets or seed schedule differ from a fresh regeneration
+	uv run python scripts/make_subsets.py --check
 
 clean:  ## Remove caches and build artifacts (never touches runs/ or data/)
 	rm -rf .mypy_cache .ruff_cache .pytest_cache .coverage htmlcov dist build
