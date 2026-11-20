@@ -31,7 +31,7 @@ make help           # list every target
 
 Individual gates: `make format`, `make lint`, `make test`. Container route:
 `make docker-build`, `make docker-test`, `docker compose run --rm harness`.
-`pilot`, `run-cell` and `analyse` are placeholders until the later phases land.
+`make pilot` and `make run-cell` run real model batches (hours; only when the user asks). `make analyse` rebuilds `results/` from `runs/` (RQ1 and RQ3 so far).
 
 ## Rules of the road
 
