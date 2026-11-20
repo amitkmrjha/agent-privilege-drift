@@ -54,14 +54,22 @@ experiments or the whole thesis is not confirmed.
 
 ## Decisions waiting for the author or the supervisor
 
-- **RQ2 framing** (D26, D27): accept that IBAC equals MAC on ToolPrivBench and rest the IBAC claim on
-  AgentDojo (#23), or reframe RQ2. Needs the supervisor, because the submitted proposal states RQ2.
+- **RQ2 keeps its original wording** (D26, D27, D31). IBAC and MAC are expected to behave the same on
+  ToolPrivBench; that is reported as a result, not a reason to reword. It is tested for both models
+  if the frontier mediator cells are run. **Only if the frontier quota forces those cells to be cut**,
+  check the proposal's RQ2 sentence: if it requires both models, add a one-line scope note ("tested
+  on Llama").
 - **Is 2026-12-02 the experiments or the whole thesis?** Not confirmed.
-- **Run plan (D31, proposed):** run 9 of the 18 cells, 1,350 runs instead of 2,700: Llama with no
-  mediator and IBAC (about 6 hours), frontier with no mediator only; MAC cells are not run. Keeps the
-  primary contrast, Page's trend and RQ3; drops IBAC vs MAC (empty on this benchmark anyway, D27).
-  Cells run in priority order (the four primary cells first). The supervisor must agree, because it
-  changes what RQ2 can say. Fall-back: the full grid in the same order.
+- **Run plan (D31, accepted 2026-11-21): the full 18-cell grid, 2,700 runs, registered and run in two
+  priority-ordered lanes that can run at the same time:** Llama (local, about 9.3 hours) and frontier
+  (API, about 0.7 hours of model time but bound by the unknown quota, D09). The four primary cells are
+  first in each lane and the p = 0.3 mediator cells last, so if time or quota runs out the cut falls
+  on the least valuable cells. A cell not finished by the deadline is reported as "not run" under a
+  rule written in advance, so cutting is planned, not a deviation. Mitigation is decided later, in this
+  pre-declared order: no frontier mediator cells (1,800 runs), then no p = 0.3 mediator cells for
+  Llama (1,500), then no `frontier_p0.3_none` (1,350). The supervisor agrees in principle to
+  simplifications that keep the design correct and defensible (relayed by the author; **get it in
+  writing**).
 - Proposed decisions to confirm in #26: D05, D07 (keep 15), D14 (k = 3 recommended), D18, D19, D21,
   D22, D23, D25, D26, D27, D28 (frontier model id and decoding), D29 (primary violation measure),
   D09 (API budget) still waits on the Gemini quota. **D30 (seeds) is settled: keep 3** (see below).
@@ -120,10 +128,13 @@ per-call rate is primary (D29): re-run if that changes.
    Re-run `scripts/power_analysis.py` if D29 changes the primary measure.
 4. Frontier model (#28): check the Gemini plan and quota in AI Studio (link billing to leave the free
    tier); the 429 back-off is built (D09), a fixed throttle is optional. Choose and pin the model id.
-5. Write the pre-registration (#29), tag and hash the freeze (#30). After the tag, any change is a
-   logged deviation (#35).
-6. Phase 3: run the cells in D31's priority order (Llama about 6 hours under the proposed plan) and the
-   frontier no-mediator cells, then clean the data (#33). Use `make run-cell CELL=<id>` and
+5. Finish the pre-registration (#29): a draft is in `prereg/preregistration.md`; its section 0 lists the
+   open items, and blanks are marked **[CONFIRM]** (author or supervisor) and **[FILL AT FREEZE]**
+   (hashes, tag). Before the tag, also set `window_k` to the value chosen in D14 (the code and
+   `configs/grid.yaml` still say 5). Then tag `exp-v1` and hash the freeze (#30). After the tag, any
+   change is a logged deviation (#35).
+6. Phase 3: run the two lanes in D31's priority order (Llama about 9.3 hours; the frontier lane bound
+   by the quota), then clean the data (#33). Use `make run-cell CELL=<id>` and
    `make check-cell CELL=<id>`.
 7. Phases 4 and 5: run `make analyse` on the real runs, then the results report (#42), the hand-off
    package (#43) and the release (#44).
