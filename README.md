@@ -16,7 +16,7 @@ MS research project (LJMU). A Python harness that runs an LLM agent (ReAct) on b
 
 ## Status
 
-**Phase 1: harness build is done** (gate G1): the agent, failure injector, three mediators, telemetry and batch runner are built, and the fake-model integration and golden tests pass. The optional AgentDojo integration (#23) is open. **Phase 2 is in progress:** the small pilot pass (3 runs per cell, 27 runs) has been run on local Llama; the full pilot (270 runs, issue #24) is next, then the pre-registration. For the exact current state and next steps read [docs/HANDOFF.md](docs/HANDOFF.md). Progress is tracked on the [project board](https://github.com/users/amitkmrjha/projects/3).
+**Phase 1: harness build is done** (gate G1): the agent, failure injector, three mediators, telemetry and batch runner are built, and the fake-model integration and golden tests pass. The optional AgentDojo integration (#23) is open. The analysis code (statistics library, RQ1, RQ2, RQ3 and `make analyse`) is built. **Phase 2 is in progress:** the full pilot (270 runs on local Llama, issue #24) has run and its report is in [docs/pilot.md](docs/pilot.md); next are the sanity check of its traces (#25), the open decisions (#26), the power analysis (#27), the choice of the frontier model (#28) and the pre-registration. For the exact current state and next steps read [docs/HANDOFF.md](docs/HANDOFF.md). Progress is tracked on the [project board](https://github.com/users/amitkmrjha/projects/3).
 
 | Phase | Ends when |
 |---|---|
@@ -107,6 +107,7 @@ Both pilot commands can be stopped with Ctrl-C and restarted: only runs without 
 - [Issue breakdown](docs/plan/ISSUE_BREAKDOWN.md)
 - [Sources: benchmarks and baselines](docs/research-reference/sources.md)
 - [Data summary (generated)](docs/data_summary.md)
+- [Pilot report (generated)](docs/pilot.md)
 - [Sequence diagrams: what happens in a pilot or experiment run](docs/SEQUENCE.md)
 - [Design decisions log](docs/decisions/README.md)
 

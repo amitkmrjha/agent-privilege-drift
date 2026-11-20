@@ -12,14 +12,14 @@ Status meanings: **Accepted** = rule taken from the PRD or made and done; **Prop
 | D04 | [What the agent sees when a call is blocked](D04-block-message.md) | Accepted | #15, #19, #20 |
 | D05 | [Definition of an escalation attempt (RQ3 label)](D05-escalation-label.md) | Proposed | #13, #39 |
 | D06 | [ReAct format](D06-react-format.md) | Accepted | #17 |
-| D07 | [Retry policy and step cap](D07-retries-and-step-cap.md) | Accepted (cap value pending pilot) | #17, #24 |
+| D07 | [Retry policy and step cap](D07-retries-and-step-cap.md) | Accepted (pilot: 15 not binding; keep 15, needs confirming) | #17, #24 |
 | D08 | [AgentDojo benign-utility runs](D08-agentdojo-benign-runs.md) | Accepted (only if AgentDojo is kept) | #23, #34 |
 | D09 | [API call budget versus rate limit](D09-api-budget.md) | Pending the pilot | #24, #28, #32 |
 | D10 | [Seed schedule versus common random numbers](D10-seed-schedule.md) | Accepted | #14 |
 | D11 | [What the violation rate divides by](D11-violation-rate-denominator.md) | Accepted | #36, #37 |
 | D12 | [How AgentDojo is integrated](D12-agentdojo-integration.md) | Accepted (only if AgentDojo is kept) | #23 |
 | D13 | [IBAC classifier failure](D13-classifier-failure.md) | Accepted | #20 |
-| D14 | [Rolling-window size k for the 503 rate](D14-rolling-window-size.md) | Pending the pilot | #18, #39, #26 |
+| D14 | [Rolling-window size k for the 503 rate](D14-rolling-window-size.md) | Pilot done; k = 3 recommended, needs confirming | #18, #39, #26 |
 | D15 | [Python package name](D15-package-name.md) | Accepted (done) | PR #49 |
 | D16 | [Ollama runs natively, not in Docker](D16-native-ollama.md) | Accepted (done) | PR #50 |
 | D17 | [No automated dependency updates](D17-no-dependabot.md) | Accepted (done) | PR #50 |
@@ -34,3 +34,4 @@ Status meanings: **Accepted** = rule taken from the PRD or made and done; **Prop
 | D26 | [What the MAC baseline is (reimplemented from the paper, simplified)](D26-mac-baseline.md) | Proposed | #19, #20, #26, #38 |
 | D27 | [How IBAC is built, and what it can and cannot separate](D27-ibac-design.md) | Proposed (finding needs a decision) | #20, #23, #26, #38 |
 | D28 | [Frontier model id, and sampling settings the frontier API rejects](D28-frontier-model-id-and-sampling.md) | Proposed (model id provisional) | #26, #28 |
+| D29 | [Which violation measure is primary (rate per call, or violating calls per run)](D29-primary-violation-measure.md) | Proposed (raised by the pilot) | #26, #27, #29, #37 |

@@ -36,6 +36,10 @@ Under D18 ToolPrivBench has two tiers, and no ToolPrivBench task needs an admin 
 
 So the IBAC-versus-MAC contrast on ToolPrivBench is empty by construction, not because IBAC does or does not work. A contrast needs tasks whose required privilege differs, which is what AgentDojo's task suites have.
 
+## Measured again in the pilot (2026-11-20)
+
+On the 10 pilot scenarios (not in the frozen 50), IBAC runs classified 9 of 10 tasks into the benchmark's own domain (90 %), with no unreadable replies; the one miss was "look up his email address" (database, classified as business, confidence 1.0), an understandable ambiguity. Model digest `46e0c10c039e019119339687c3c1757cc81b9da49709a3b3924863ba87ca666e`, recorded in every manifest. Both are in `docs/pilot.md`. As this section's finding says, the policy is the same for every intent, so the miss changes nothing.
+
 ## Options for #26
 
 1. **Accept and report it.** On ToolPrivBench, IBAC equals MAC; say so plainly, and make the IBAC claim rest on AgentDojo (#23), which then should not be dropped.
@@ -45,5 +49,4 @@ So the IBAC-versus-MAC contrast on ToolPrivBench is empty by construction, not b
 ## Pending / follow-up
 
 - Decide among the options above in #26.
-- Record the accuracy and the model digest in `docs/pilot.md` after the pilot.
 - AgentDojo needs its own intent taxonomy and policy; the ToolPrivBench one does not carry over.
