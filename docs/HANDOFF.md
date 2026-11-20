@@ -57,9 +57,11 @@ experiments or the whole thesis is not confirmed.
 - **RQ2 framing** (D26, D27): accept that IBAC equals MAC on ToolPrivBench and rest the IBAC claim on
   AgentDojo (#23), or reframe RQ2. Needs the supervisor, because the submitted proposal states RQ2.
 - **Is 2026-12-02 the experiments or the whole thesis?** Not confirmed.
-- **Frontier arm scope:** the plan runs the frontier model in all 9 cells (1,350 runs). Running it only
-  on the "no mediator" cells (450 runs) and running MAC/IBAC on Llama only would save about 900
-  frontier runs. This is not one of the plan's reduction levers; the supervisor should agree.
+- **Run plan (D31, proposed):** run 9 of the 18 cells, 1,350 runs instead of 2,700: Llama with no
+  mediator and IBAC (about 6 hours), frontier with no mediator only; MAC cells are not run. Keeps the
+  primary contrast, Page's trend and RQ3; drops IBAC vs MAC (empty on this benchmark anyway, D27).
+  Cells run in priority order (the four primary cells first). The supervisor must agree, because it
+  changes what RQ2 can say. Fall-back: the full grid in the same order.
 - Proposed decisions to confirm in #26: D05, D07 (keep 15), D14 (k = 3 recommended), D18, D19, D21,
   D22, D23, D25, D26, D27, D28 (frontier model id and decoding), D29 (primary violation measure),
   D09 (API budget) still waits on the Gemini quota. **D30 (seeds) is settled: keep 3** (see below).
@@ -108,17 +110,20 @@ per-call rate is primary (D29): re-run if that changes.
 ## Next steps, in order
 
 1. Read the ten traces (`runs/pilot/traces_to_read.md`) and note anything odd: closes #25.
-2. Talk to the supervisor: RQ2 framing, frontier scope (all 9 cells or the 3 no-mediator cells), what
-   2 December means, the utility-floor wording, and the primary violation measure (D29).
+2. Talk to the supervisor, using `docs/supervisor_brief.md`: RQ2 framing, the run plan (D31), what
+   2 December means, the utility-floor wording, the primary violation measure (D29), and whether a
+   small model is an acceptable frontier baseline (D28).
 3. Settle the remaining decisions in #26 (list above). Seeds are settled (D30: keep 3, #27 closed).
    Re-run `scripts/power_analysis.py` if D29 changes the primary measure.
 4. Frontier model (#28): check the Gemini plan and quota in AI Studio; consider a throttle and a longer
    429 back-off (D09). Choose and pin the model id.
 5. Write the pre-registration (#29), tag and hash the freeze (#30). After the tag, any change is a
    logged deviation (#35).
-5. Phase 3: run the Llama grid (1,350 runs, about 8 to 10 hours of machine time) and the frontier
-   arm, clean the data (#33). Use `make run-cell CELL=<id>` and `make check-cell CELL=<id>`.
-6. Phases 4 and 5: statistics, the three analyses, one-command reproduction, results report, release.
+6. Phase 3: run the cells in D31's priority order (Llama about 6 hours under the proposed plan) and the
+   frontier no-mediator cells, then clean the data (#33). Use `make run-cell CELL=<id>` and
+   `make check-cell CELL=<id>`.
+7. Phases 4 and 5: run `make analyse` on the real runs, then the results report (#42), the hand-off
+   package (#43) and the release (#44).
 
 ## How to resume in a new Claude Code session
 
