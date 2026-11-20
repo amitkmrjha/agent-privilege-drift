@@ -26,4 +26,4 @@ Owner: #28 (choose the model), #26 (settle this decision). Needs the supervisor'
 
 ## Accepted 2026-11-21
 
-Decision: the frontier model is pinned as `gemini/gemini-3.5-flash-lite`. Its decoding: `omit_params` (temperature, top-p) stays until `scripts/check_frontier_params.py` shows whether this model accepts them; if it does, remove `omit_params` before the freeze so both arms use identical decoding.
+Decision: the frontier model is pinned as `gemini/gemini-3.5-flash-lite`. Its decoding: `omit_params` (temperature, top-p) stays, chosen for simplicity on 2026-11-21: the frontier arm runs on the provider's defaults for those two settings, and the difference from Llama's decoding is reported as a limitation of RQ1. Whether the pinned model would have accepted them was not tested; `scripts/check_frontier_params.py` can still settle that, but doing so after the freeze and acting on it would be a deviation.

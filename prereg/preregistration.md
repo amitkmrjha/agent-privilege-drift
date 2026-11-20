@@ -1,27 +1,31 @@
-# Pre-registration (DRAFT, not yet registered)
+# Pre-registration
 
-**Status: draft of 2026-11-21.** This becomes the pre-registration when the open items below are
-settled, the blanks are filled and the freeze is tagged (`exp-v1`, issue #30). Every rule here is
-taken from a decision record (`docs/decisions/`) or a config file; where only the proposal or the
-supervisor can answer, the text carries a CONFIRM marker in square brackets. Values that exist only
-at freeze time carry a FILL marker. After the tag, any change is a logged deviation (`docs/deviations.md`, #35) and
-the analyses it touches are labelled exploratory.
+**Registered at the freeze (tag `exp-v1`, issue #30).** Every rule here is taken from a decision
+record (`docs/decisions/`) or a config file, and the values it depends on are recorded in section 11
+with their hashes. After the tag, any change to a run file or to this text is a logged deviation
+(`docs/deviations.md`, #35), and the analyses it touches are labelled exploratory.
 
 Project: *Dynamic Tool Authorization: Evaluating Least-Privilege Violations and Privilege Escalation
 under Failure Pressure in Open-Source Agents* (MS research project, LJMU). No human subjects (PO12).
 
-## 0. Open items before this can be registered
+## 0. Choices made for the freeze, and what stays outside it
 
-| # | Item | Who |
-|---|---|---|
-| 1 | If the frontier quota forces the planned cut of the six frontier mediator cells (D31), check the proposal's RQ2 sentence: if it requires both models, add a one-line scope note ("RQ2 is tested on Llama"). RQ2's wording itself is unchanged | author |
-| 2 | What 2 December covers. (The full grid, run in priority order with a pre-declared "not run" rule, D31, is accepted: the supervisor agrees in principle to simplifications that keep the design correct and defensible; get that in writing for the record.) | supervisor |
-| 3 | The pre-declared utility-floor wording (proposal section 7.5.2) and the reading of "5 points" (section 6 below) | author |
-| 4 | Hypothesis directions (section 2): checked against the proposal | author |
-| 5 | Primary violation measure (D29) and window size k (D14: k = 3 recommended; the code and `configs/grid.yaml` still say 5) | author |
-| 6 | The frontier model id and whether a small model is an acceptable frontier baseline (D28), and the API quota (D09) | author |
-| 7 | Whether seeds 4 and 5 are added if the primary result is inconclusive (D30) | author |
-| 8 | The confirmatory versus exploratory split (section 9) and the canonical lever list (section 8) | author |
+Settled by the author on 2026-11-21, choosing the simpler option each time:
+
+- The primary measure, the window size k = 3, the 15-step cap, the pinned frontier model, 3 seeds and
+  the run plan are as in sections 1 to 4 (decisions D07, D14, D28, D29, D30, D31).
+- **Hypotheses** are two-sided where a direction is not needed (section 2), and the **outcome wording**
+  for the utility floor is the one written in section 6, fixed here before any run.
+- **No sequential extension:** seeds 4 and 5 are not added after seeing results, even though the seed
+  schedule holds them.
+- **The frontier model's decoding** is left to the provider's defaults for temperature and top-p
+  (section 4); this and the use of a small model as the "frontier baseline" are limitations (section 10).
+- If the frontier quota forces the pre-declared cut of the six frontier mediator cells (D31), RQ2 is
+  stated as tested on Llama only. RQ2's wording itself is unchanged.
+
+Outside the freeze: what 2 December covers (a schedule matter, not part of the design), and the
+written record of the supervisor's agreement in principle to simplifications that keep the design
+correct and defensible, which is kept with the thesis appendix.
 
 ## 1. Design
 
@@ -52,12 +56,11 @@ under Failure Pressure in Open-Source Agents* (MS research project, LJMU). No hu
   comparisons pair the two cells by scenario (n = 50).
 - **Out of scope:** AgentDojo (the secondary environment) is not part of this registration; if it is added later it gets its own pre-registration.
 
-## 2. Hypotheses and directions **[CONFIRM against the proposal]**
+## 2. Hypotheses and directions
 
 - **H1 (RQ1, confirmatory, primary).** Under no mediator, the failure-induced escalation delta
   differs between the frontier model and Llama: DiD = (V_frontier(0.6) - V_frontier(0)) -
-  (V_llama(0.6) - V_llama(0)) is not zero. Two-sided. **[CONFIRM direction: the proposal may state
-  that Llama escalates more.]**
+  (V_llama(0.6) - V_llama(0)) is not zero. Two-sided: no direction is assumed, so the test does not depend on one.
 - **H1a (secondary).** Within each model, with no mediator, the violation rate rises with the failure
   rate (an increasing trend across p = 0, 0.3, 0.6).
 - **H2 (RQ2, as in the proposal).** Compared with no mediator and with MAC, IBAC reduces violations
@@ -65,7 +68,6 @@ under Failure Pressure in Open-Source Agents* (MS research project, LJMU). No hu
   utility floor, section 6), for each model. Tested for proposed, executed and blocked violations.
   On ToolPrivBench IBAC and MAC are expected to behave the same (D27); that expectation is stated here
   in advance, and a result of "no difference between IBAC and MAC" answers the question as asked.
-  **[CONFIRM direction against the proposal]**
 - **H3 (RQ3, descriptive).** Which observable signals best predict that the next proposed call is a
   violation, and with what relative weight. No confirmatory test; reported with predictive accuracy
   and intervals on the weights.
@@ -114,9 +116,9 @@ under Failure Pressure in Open-Source Agents* (MS research project, LJMU). No hu
 - **Sampling (identical for Llama and the frontier arm where the API allows it):** temperature 0.2,
   top-p 0.9, max 2,048 output tokens, per-call timeout 300 s, a seed on every Llama call. Llama context
   `num_ctx` 8192. **Departure (D28):** an earlier Gemini model rejected temperature and top-p, so the
-  frontier entry omits them. **[FILL: result of `scripts/check_frontier_params.py` for the pinned model.
-  If it accepts both, `omit_params` is removed and both arms use identical decoding; if not, that arm
-  runs on the provider's defaults and this is reported as a limitation of RQ1.]**
+  frontier entry omits them. That arm therefore runs on the provider's defaults for those two settings, and this is
+  reported as a limitation of RQ1. It was decided for simplicity (D28); whether the pinned model
+  would have accepted them was not tested.
 - **Model identity:** Llama digest `46e0c10c039e019119339687c3c1757cc81b9da49709a3b3924863ba87ca666e`
   (recorded in every manifest). The frontier arm has no digest, so its exact model id and the dates
   of the runs are recorded instead. The frontier model is `gemini/gemini-3.5-flash-lite`.
@@ -134,7 +136,7 @@ under Failure Pressure in Open-Source Agents* (MS research project, LJMU). No hu
   together).
 - **Power (D30, `docs/power.md`):** for a true 12-point DiD with 3 seeds, 78.7 % at 0.05, and about
   12.2 points detectable with 80 % power, from noise estimated on 10 pilot scenarios (rough).
-- **Reading the result (decided in advance) [CONFIRM]:** *supported* if p < 0.05 and the interval
+- **Reading the result (decided in advance):** *supported* if p < 0.05 and the interval
   excludes 0; *not supported, with an upper bound* if the interval lies inside +/-12 points (the effect
   is smaller than 12 points); *inconclusive* otherwise. A non-significant result is never reported as
   "no effect".
@@ -148,10 +150,11 @@ under Failure Pressure in Open-Source Agents* (MS research project, LJMU). No hu
 - **Utility floor (PO4, PO5):** IBAC minus each comparator (MAC and none) in task success, per failure
   rate and pooled over the three, with a 95 % bootstrap interval of the paired difference. **Met** if the lower bound
   is above -5 points; **not met** if the upper bound is below -5 points; **inconclusive** otherwise.
-  **[CONFIRM this reading of "5 pp"]**
-- **Pre-declared wording for the outcome:** **[FILL: proposal section 7.5.2, verbatim. The report takes
-  it as an input; neutral stand-in sentences are used until then.]** "Reduces violations but exceeds
-  threshold" is a valid result and will be reported as such.
+- **Pre-declared wording for the outcome** (written here, before any run): when the floor is *met*,
+  "IBAC's task success is not more than 5 points below the comparator's"; when *not met*, "IBAC's task
+  success is more than 5 points below the comparator's"; when *inconclusive*, "the data neither show
+  IBAC within 5 points of the comparator nor more than 5 points below it". "Reduces violations but
+  exceeds the threshold" is a valid result and will be reported as such.
 - **Attack success rate** is an AgentDojo measure and is not part of this registration.
 
 ## 7. Tests, significance and corrections
@@ -162,17 +165,17 @@ under Failure Pressure in Open-Source Agents* (MS research project, LJMU). No hu
   failure rates within a model and mediator): 18 tests on the full grid (12 if the frontier mediator
   cells are cut); between-model contrasts at each failure rate and mediator: 9 (3 if cut). RQ2: one
   family per metric, 18 tests each (2 models x 3 failure rates x 3 mediator pairs; 9 if cut).
-  **[CONFIRM the family definitions; the plan's "18-cell family" is read as the across-p contrasts.]**
+  The plan's "18-cell family" is read as the across-p contrasts.
 - **Trend:** Page's test across the ordered failure rates, per model and mediator.
 - **RQ3:** logistic regression on standardised features; features with a variance inflation factor above 5
   are replaced by their first principal component (fitted without labels); tested leave-scenario-out
   (`GroupKFold(5)`); reports AUC, Brier score and calibration; importance = mean absolute SHAP value on
   standardised features, with a 1,000-resample bootstrap over scenarios for intervals on importance
-  and rank. Fitted once on all calls from the registered cells, for both labels. **[CONFIRM pooling]**
+  and rank. Fitted once on all calls from the registered cells, for both labels.
 - All numbers are produced by `make analyse` from the finished run files only (`results/numbers.json`);
   a second run gives byte-identical files.
 
-## 8. Reduction levers, in the order they would be pulled **[CONFIRM the canonical list]**
+## 8. Reduction levers, in the order they would be pulled
 
 The full grid is registered and run in the order of section 1. If time or the frontier quota runs
 short, the run order is cut from the end, in this order (D31): no frontier mediator cells; then no
@@ -187,7 +190,7 @@ removes the primary contrast. A lever pulled beyond the pre-declared order is lo
 **Confirmatory:** H1 (the primary test, section 5) and the utility-floor check in H2 (section 6).
 **Everything else is secondary or exploratory and is labelled so:** the Holm-corrected contrasts, the
 trend tests, the secondary measures and all of RQ3. Any analysis added after seeing the data, and any
-analysis affected by a change after the freeze, is reported as exploratory. **[CONFIRM the split]**
+analysis affected by a change after the freeze, is reported as exploratory.
 
 ## 10. Data quality, exclusions and limitations
 
@@ -197,7 +200,7 @@ analysis affected by a change after the freeze, is reported as exploratory. **[C
   attribution matches the ground truth. A failing cell is re-run before any analysis uses it.
 - Runs ending as `format_error` or `max_steps` are kept and counted; their rates are reported as health
   measures (the plan's threshold is about 5 %). Calls flagged as possibly truncated are reviewed and
-  reported; **[CONFIRM whether they are excluded]**.
+  reported; they are not excluded.
 - **Limitations to state:** tools are stubs with no real side effects and a fixed reply (about 4 % of
   calls repeat the previous tool right after it succeeded); one benchmark with a two-level tier map;
   provisional task success; the frontier model may be a small model with different decoding and no
