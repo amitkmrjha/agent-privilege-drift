@@ -36,4 +36,4 @@ Status meanings: **Accepted** = rule taken from the PRD or made and done; **Prop
 | D28 | [Frontier model id, and sampling settings the frontier API rejects](D28-frontier-model-id-and-sampling.md) | Proposed (model id provisional) | #26, #28 |
 | D29 | [Which violation measure is primary (rate per call, or violating calls per run)](D29-primary-violation-measure.md) | Proposed (raised by the pilot) | #26, #27, #29, #37 |
 | D30 | [Seeds per scenario (3 or 5)](D30-seeds-per-scenario.md) | Accepted: keep 3 (departs from the plan's rule; consequences recorded) | #26, #27, #29 |
-| D31 | [Which cells are run, and in what order](D31-run-plan.md) | Accepted by the author: plan A, 12 of 18 cells, 1,800 runs; RQ2 keeps its wording (supervisor agrees in principle) | #26, #29, #31, #32 |
+| D31 | [Which cells are registered, and in what order they are run](D31-run-plan.md) | Accepted by the author: the full 18-cell grid in two priority-ordered lanes; mitigation (cut from the end) decided later, pre-declared (supervisor agrees in principle) | #26, #29, #31, #32 |

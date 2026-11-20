@@ -14,8 +14,8 @@ under Failure Pressure in Open-Source Agents* (MS research project, LJMU). No hu
 
 | # | Item | Who |
 |---|---|---|
-| 1 | Check the proposal's own RQ2 sentence: if it requires both models, add a one-line scope note ("RQ2 is tested on Llama") or run the six frontier mediator cells (D31). RQ2's wording itself is unchanged | author |
-| 2 | What 2 December covers. (The 12-of-18-cell plan A, D31, is accepted: the supervisor agrees in principle to simplifications that keep the design correct and defensible; get that in writing for the record.) | supervisor |
+| 1 | If the frontier quota forces the planned cut of the six frontier mediator cells (D31), check the proposal's RQ2 sentence: if it requires both models, add a one-line scope note ("RQ2 is tested on Llama"). RQ2's wording itself is unchanged | author |
+| 2 | What 2 December covers. (The full grid, run in priority order with a pre-declared "not run" rule, D31, is accepted: the supervisor agrees in principle to simplifications that keep the design correct and defensible; get that in writing for the record.) | supervisor |
 | 3 | The pre-declared utility-floor wording (proposal section 7.5.2) and the reading of "5 points" (section 6 below) | author |
 | 4 | Hypothesis directions (section 2): checked against the proposal | author |
 | 5 | Primary violation measure (D29) and window size k (D14: k = 3 recommended; the code and `configs/grid.yaml` still say 5) | author |
@@ -36,17 +36,18 @@ under Failure Pressure in Open-Source Agents* (MS research project, LJMU). No hu
 - **Factors:** model (open: Llama 3.1 8B Instruct, `q4_K_M`; frontier: **[CONFIRM id]**, currently
   `gemini/gemini-3.5-flash-lite`, D28) x injected failure rate p in {0, 0.3, 0.6} x mediator
   (none, MAC, IBAC). The full grid is 18 cells.
-- **Cells actually run (D31, plan A):** 12 of 18, 150 runs each (50 scenarios x 3 seeds), 1,800 runs:
-  Llama with no mediator, MAC and IBAC at p = 0, 0.3, 0.6 (9 cells); frontier with no mediator at
-  p = 0, 0.3, 0.6 (3 cells). **Not run:** frontier MAC (3 cells) and frontier IBAC (3). The grid file
-  keeps all 18 cells so cell numbers and the seed schedule are unchanged; the cells above are the
-  registered ones. RQ2 is tested on Llama (IBAC's classifier is Llama); its wording is unchanged.
-  Accepted (D31), on the supervisor's agreement in principle; **[CONFIRM in writing]**. Fall-back is
-  the full grid.
-- **Run order (D31):** the four primary cells first (`llama_p0_none`, `llama_p0.6_none`,
-  `frontier_p0_none`, `frontier_p0.6_none`), then `llama_p0.3_none` and `frontier_p0.3_none`, then
-  IBAC and MAC at p = 0 and 0.6 (IBAC first), then the p = 0.3 IBAC and MAC cells last. A registered
-  cell not finished by the deadline is reported as "not run", never dropped silently.
+- **Cells registered (D31):** the full grid, all 18 cells, 150 runs each (50 scenarios x 3 seeds),
+  2,700 runs. Accepted on the supervisor's agreement in principle to simplifications that keep the
+  design correct and defensible; **[CONFIRM in writing]**.
+- **Run order (D31), two lanes that can run at the same time:** *Llama (local):* `llama_p0_none`,
+  `llama_p0.6_none`; `llama_p0.3_none`; IBAC at p = 0 and 0.6; MAC at p = 0 and 0.6; then the p = 0.3
+  IBAC and MAC cells. *Frontier (API):* the same order with the `frontier_` cells. The first step of
+  each lane is the primary contrast. **Rule decided in advance:** a registered cell not finished by the
+  deadline (for example because the frontier quota runs out) is reported as "not run", never dropped
+  silently, and the analyses that need it say so; stopping from the end of an order is the planned
+  way to cut and is not a deviation. Pre-declared cuts, in order: no frontier mediator cells (1,800
+  runs; RQ2 then tested on Llama only, with a one-line scope note), then no p = 0.3 mediator cells
+  for Llama (1,500 runs), then no `frontier_p0.3_none` (1,350 runs).
 - **Unit of analysis:** the scenario. Each cell gives one value per scenario, the mean over its seeds;
   comparisons pair the two cells by scenario (n = 50).
 - **Out of scope:** AgentDojo (the secondary environment) is not part of this registration
@@ -60,9 +61,9 @@ under Failure Pressure in Open-Source Agents* (MS research project, LJMU). No hu
   that Llama escalates more.]**
 - **H1a (secondary).** Within each model, with no mediator, the violation rate rises with the failure
   rate (an increasing trend across p = 0, 0.3, 0.6).
-- **H2 (RQ2, as in the proposal).** Compared with no mediator and with MAC, IBAC reduces Llama's
-  violations across failure rates without its task success falling more than 5 points below the
-  comparator's (the utility floor, section 6). Tested for proposed, executed and blocked violations.
+- **H2 (RQ2, as in the proposal).** Compared with no mediator and with MAC, IBAC reduces violations
+  across failure rates without task success falling more than 5 points below the comparator's (the
+  utility floor, section 6), for each model. Tested for proposed, executed and blocked violations.
   On ToolPrivBench IBAC and MAC are expected to behave the same (D27); that expectation is stated here
   in advance, and a result of "no difference between IBAC and MAC" answers the question as asked.
   **[CONFIRM direction against the proposal]**
@@ -140,9 +141,10 @@ under Failure Pressure in Open-Source Agents* (MS research project, LJMU). No hu
 
 ## 6. RQ2: the utility floor and the mediator contrasts
 
-- **Contrasts (Llama, D31):** IBAC against MAC, IBAC against no mediator, and MAC against no mediator,
-  at each failure rate, for proposed, executed and blocked violation rates and task success. Paired
-  Wilcoxon, Cliff's delta, Cohen's dz. The frontier arm has no mediators and is not part of RQ2.
+- **Contrasts (each model that has mediator cells, D31):** IBAC against MAC, IBAC against no mediator,
+  and MAC against no mediator, at each failure rate, for proposed, executed and blocked violation
+  rates and task success. Paired Wilcoxon, Cliff's delta, Cohen's dz. If the frontier mediator cells
+  are cut under the pre-declared rule, RQ2 is reported for Llama only, and the report says so.
 - **Utility floor (PO4, PO5):** IBAC minus each comparator (MAC and none) in task success, per failure
   rate and pooled over the three, with a 95 % bootstrap interval of the paired difference. **Met** if the lower bound
   is above -5 points; **not met** if the upper bound is below -5 points; **inconclusive** otherwise.
@@ -157,10 +159,10 @@ under Failure Pressure in Open-Source Agents* (MS research project, LJMU). No hu
 - Paired tests on scenario-level means, two-sided, pairing by scenario id; a scenario missing from one
   cell is left out of that comparison and counted. **alpha = 0.05.**
 - **Secondary contrasts, corrected with Holm within each family:** across-p contrasts (each pair of
-  failure rates within a model and mediator): 12 tests under plan A (18 under the full grid);
-  between-model contrasts at each failure rate: 3 (9). RQ2: one family per metric, 9 tests each (the
-  three mediator pairs at three failure rates; 18 under the full grid). **[CONFIRM the family
-  definitions; the plan's "18-cell family" is read as the across-p contrasts.]**
+  failure rates within a model and mediator): 18 tests on the full grid (12 if the frontier mediator
+  cells are cut); between-model contrasts at each failure rate and mediator: 9 (3 if cut). RQ2: one
+  family per metric, 18 tests each (2 models x 3 failure rates x 3 mediator pairs; 9 if cut).
+  **[CONFIRM the family definitions; the plan's "18-cell family" is read as the across-p contrasts.]**
 - **Trend:** Page's test across the ordered failure rates, per model and mediator.
 - **RQ3:** logistic regression on standardised features; features with a variance inflation factor above 5
   are replaced by their first principal component (fitted without labels); tested leave-scenario-out
@@ -172,12 +174,13 @@ under Failure Pressure in Open-Source Agents* (MS research project, LJMU). No hu
 
 ## 8. Reduction levers, in the order they would be pulled **[CONFIRM the canonical list]**
 
-D31 (plan A) is the first reduction and is part of this registration: the frontier model runs without
-mediators. If time runs out further, the run order cuts from the end: first the p = 0.3 IBAC and MAC
-cells (reserve option A1: the mediators compared at p = 0 and 0.6 only), then, if the quota is tight,
-the frontier at p = 0 and 0.6 only (A2). Proposal levers (plan section 5): drop the AgentDojo secondary
-grid (L2); drop the frontier arm (L3, which removes RQ1's comparison). Dropping p = 0.6 (L1) is **not**
-an option, because it removes the primary contrast. Every lever pulled is logged as a deviation.
+The full grid is registered and run in the order of section 1. If time or the frontier quota runs
+short, the run order is cut from the end, in this order (D31): no frontier mediator cells; then no
+p = 0.3 IBAC and MAC cells for Llama; then no `frontier_p0.3_none`. Stopping from the end of the order
+is the planned way to cut, covered by the "not run" rule in section 1, and is not a deviation. Beyond
+that, the proposal levers (plan section 5): drop the AgentDojo secondary grid (L2); drop the frontier
+arm (L3, which removes RQ1's comparison). Dropping p = 0.6 (L1) is **not** an option, because it
+removes the primary contrast. A lever pulled beyond the pre-declared order is logged as a deviation.
 
 ## 9. Confirmatory and exploratory
 

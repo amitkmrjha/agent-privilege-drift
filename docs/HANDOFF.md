@@ -55,18 +55,21 @@ experiments or the whole thesis is not confirmed.
 ## Decisions waiting for the author or the supervisor
 
 - **RQ2 keeps its original wording** (D26, D27, D31). IBAC and MAC are expected to behave the same on
-  ToolPrivBench; that is reported as a result, not a reason to reword. RQ2 is tested on Llama (IBAC's
-  classifier is Llama). **Check the proposal's RQ2 sentence:** if it requires both models, add a
-  one-line scope note, or run the six frontier mediator cells.
+  ToolPrivBench; that is reported as a result, not a reason to reword. It is tested for both models
+  if the frontier mediator cells are run. **Only if the frontier quota forces those cells to be cut**,
+  check the proposal's RQ2 sentence: if it requires both models, add a one-line scope note ("tested
+  on Llama").
 - **Is 2026-12-02 the experiments or the whole thesis?** Not confirmed.
-- **Run plan (D31, plan A, accepted 2026-11-21):** run 12 of the 18 cells, 1,800 runs instead of 2,700:
-  Llama with no mediator, MAC and IBAC at three failure rates (about 9.3 hours), frontier with no
-  mediator only (900 fewer frontier runs). Keeps RQ1, RQ2 and RQ3 whole. Cells run in priority order
-  (the four primary cells first, the p = 0.3 mediator cells last, so a deadline cuts the least
-  valuable ones). The supervisor agrees in principle to simplifications that keep the design correct
-  and defensible (relayed by the author; **get it in writing**). Fall-back: the full grid in the same
-  order. Reserve cuts: A1 (mediators at p = 0 and 0.6 only, 7.2 hours) and A2 (A1 plus frontier at
-  0 and 0.6 only, 1,350 runs).
+- **Run plan (D31, accepted 2026-11-21): the full 18-cell grid, 2,700 runs, registered and run in two
+  priority-ordered lanes that can run at the same time:** Llama (local, about 9.3 hours) and frontier
+  (API, about 0.7 hours of model time but bound by the unknown quota, D09). The four primary cells are
+  first in each lane and the p = 0.3 mediator cells last, so if time or quota runs out the cut falls
+  on the least valuable cells. A cell not finished by the deadline is reported as "not run" under a
+  rule written in advance, so cutting is planned, not a deviation. Mitigation is decided later, in this
+  pre-declared order: no frontier mediator cells (1,800 runs), then no p = 0.3 mediator cells for
+  Llama (1,500), then no `frontier_p0.3_none` (1,350). The supervisor agrees in principle to
+  simplifications that keep the design correct and defensible (relayed by the author; **get it in
+  writing**).
 - Proposed decisions to confirm in #26: D05, D07 (keep 15), D14 (k = 3 recommended), D18, D19, D21,
   D22, D23, D25, D26, D27, D28 (frontier model id and decoding), D29 (primary violation measure),
   D09 (API budget) still waits on the Gemini quota. **D30 (seeds) is settled: keep 3** (see below).
@@ -127,8 +130,8 @@ per-call rate is primary (D29): re-run if that changes.
    (hashes, tag). Before the tag, also set `window_k` to the value chosen in D14 (the code and
    `configs/grid.yaml` still say 5). Then tag `exp-v1` and hash the freeze (#30). After the tag, any
    change is a logged deviation (#35).
-6. Phase 3: run the cells in D31's priority order (Llama about 9.3 hours under plan A) and the frontier
-   no-mediator cells, then clean the data (#33). Use `make run-cell CELL=<id>` and
+6. Phase 3: run the two lanes in D31's priority order (Llama about 9.3 hours; the frontier lane bound
+   by the quota), then clean the data (#33). Use `make run-cell CELL=<id>` and
    `make check-cell CELL=<id>`.
 7. Phases 4 and 5: run `make analyse` on the real runs, then the results report (#42), the hand-off
    package (#43) and the release (#44).
