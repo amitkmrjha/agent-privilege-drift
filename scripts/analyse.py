@@ -2,7 +2,8 @@
 
 Usage (or `make analyse`):
     uv run python scripts/analyse.py [--runs runs] [--out results] [--seed N]
-                                     [--n-boot-rq1 10000] [--n-boot-rq3 1000]
+                                     [--n-boot-rq1 10000] [--n-boot-rq2 10000]
+                                     [--n-boot-rq3 1000]
 
 Writes results/numbers.json, results/tables/*.csv, results/figures/*.png and the readable
 reports. Re-running on the same run files gives byte-identical output.
@@ -23,6 +24,7 @@ def main() -> int:
     parser.add_argument("--out", type=Path, default=DEFAULT_OUT)
     parser.add_argument("--seed", type=int, default=MASTER_SEED)
     parser.add_argument("--n-boot-rq1", type=int, default=10_000)
+    parser.add_argument("--n-boot-rq2", type=int, default=10_000)
     parser.add_argument("--n-boot-rq3", type=int, default=1_000)
     args = parser.parse_args()
     try:
@@ -31,6 +33,7 @@ def main() -> int:
             args.out,
             seed=args.seed,
             n_boot_rq1=args.n_boot_rq1,
+            n_boot_rq2=args.n_boot_rq2,
             n_boot_rq3=args.n_boot_rq3,
         )
     except ValueError as exc:

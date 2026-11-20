@@ -57,7 +57,7 @@ make check-cell CELL=llama_p0_none               # the three integrity checks
 
 A cell can be stopped and started again: only runs without a valid result are redone. Results go to `runs/<cell id>/` (gitignored). Running a whole cell calls the model for hours.
 
-`make analyse` regenerates every analysis number, table and figure from the finished runs under `runs/` into `results/` (`numbers.json`, `tables/*.csv`, `figures/*.png`). Running it again on the same run files gives byte-identical output. It covers RQ1 and RQ3 so far; RQ2 and the AgentDojo analysis are not part of it yet.
+`make analyse` regenerates every analysis number, table and figure from the finished runs under `runs/` into `results/` (`numbers.json`, `tables/*.csv`, `figures/*.png`). Running it again on the same run files gives byte-identical output. It covers RQ1, RQ2 and RQ3; the AgentDojo analysis is not part of it yet.
 
 ## How it works, in plain English
 

@@ -14,12 +14,20 @@ from privilege_drift.telemetry.records import ErrorSurface
 
 SCENARIOS = [f"S{i:02d}" for i in range(8)]
 PS = (0.0, 0.3, 0.6)
+MEDIATORS = ("none", "mac", "ibac")
+RUNS_IN_TOTAL = 2 * len(PS) * len(MEDIATORS) * len(SCENARIOS) * 2  # models x p x mediators x ...
 STAMP = datetime(2026, 1, 1, tzinfo=UTC)
 CALLS_PER_RUN = 5
 
 
 def make_run(
-    cell_id: str, model: str, p: float, scenario: str, seed_idx: int, violations: list[bool]
+    cell_id: str,
+    model: str,
+    p: float,
+    mediator: str,
+    scenario: str,
+    seed_idx: int,
+    violations: list[bool],
 ) -> RunTelemetry:
     run_id = f"{cell_id}__{scenario}__s{seed_idx}"
     keys: dict[str, Any] = {
@@ -29,10 +37,12 @@ def make_run(
         "seed_idx": seed_idx,
         "model": model,
         "p": p,
-        "mediator": "none",
+        "mediator": mediator,
     }
+    gated = mediator != "none"  # MAC and IBAC block every violation
     calls = []
     for step, violation in enumerate(violations, start=1):
+        blocked = violation and gated
         calls.append(
             CallRecord(
                 **keys,
@@ -46,12 +56,12 @@ def make_run(
                 escalated_above_prior=violation and step > 1,
                 min_tools_untried=1,
                 is_opur=violation,
-                allowed=True,
-                block_reason=None,
-                classifier_intent=None,
-                classifier_conf=None,
+                allowed=not blocked,
+                block_reason="blocked" if blocked else None,
+                classifier_intent="business" if mediator == "ibac" else None,
+                classifier_conf=0.9 if mediator == "ibac" else None,
                 injected=False,
-                http_code=200,
+                http_code=403 if blocked else 200,
                 retry_since_success=step % 3,
                 rolling_503_rate=round(p * (step % 4) / 3, 4),
                 rolling_window_k=5,
@@ -79,8 +89,8 @@ def make_run(
         total_calls=n,
         violations=sum(violations),
         violation_rate=sum(violations) / n,
-        executed_violations=sum(violations),
-        blocked_calls=0,
+        executed_violations=0 if gated else sum(violations),
+        blocked_calls=sum(violations) if gated else 0,
         injected_calls=0,
         parse_errors=0,
         llm_calls=n + 1,
@@ -88,8 +98,8 @@ def make_run(
         tokens_out_total=60 * n,
         latency_s_total=1.0,
         rolling_window_k=5,
-        classifier_intent=None,
-        classifier_conf=None,
+        classifier_intent="business" if mediator == "ibac" else None,
+        classifier_conf=0.9 if mediator == "ibac" else None,
         classifier_failed=False,
     )
     return RunTelemetry(records=(*calls, summary), raw=())
@@ -100,19 +110,21 @@ def make_runs(root: Path, *, violate: bool = True) -> Path:
     rng = np.random.default_rng(0)
     for model in ("llama", "frontier"):
         for p in PS:
-            cell_id = f"{model}_p{p:g}_none"
-            for scenario in SCENARIOS:
-                for seed_idx in range(2):
-                    chance = (0.1 + 0.7 * p) if model == "llama" else 0.03
-                    flags = [bool(rng.random() < chance) and violate for _ in range(CALLS_PER_RUN)]
-                    write_run(
-                        make_run(cell_id, model, p, scenario, seed_idx, flags), root / cell_id
-                    )
+            for mediator in MEDIATORS:
+                cell_id = f"{model}_p{p:g}_{mediator}"
+                for scenario in SCENARIOS:
+                    for seed_idx in range(2):
+                        chance = (0.1 + 0.7 * p) if model == "llama" else 0.03
+                        flags = [
+                            bool(rng.random() < chance) and violate for _ in range(CALLS_PER_RUN)
+                        ]
+                        run = make_run(cell_id, model, p, mediator, scenario, seed_idx, flags)
+                        write_run(run, root / cell_id)
     return root
 
 
 def analyse(runs: Path, out: Path) -> dict[str, Any]:
-    return run_analysis(runs, out, seed=7, n_boot_rq1=60, n_boot_rq3=20)
+    return run_analysis(runs, out, seed=7, n_boot_rq1=60, n_boot_rq2=60, n_boot_rq3=20)
 
 
 def files_under(root: Path) -> dict[str, bytes]:
@@ -128,11 +140,17 @@ def test_every_expected_output_is_written(tmp_path: Path) -> None:
     assert {
         "numbers.json",
         "rq1.md",
+        "rq2.md",
         "rq3_primary.md",
         "rq3_secondary.md",
         "tables/rq1_rates.csv",
         "tables/rq1_contrasts.csv",
         "tables/rq1_page.csv",
+        "tables/rq2_metrics.csv",
+        "tables/rq2_contrasts.csv",
+        "tables/rq2_floor.csv",
+        "tables/rq2_classifier.csv",
+        "figures/rq2.png",
         "tables/rq3_primary_importance.csv",
         "tables/rq3_primary_calibration.csv",
         "tables/rq3_secondary_importance.csv",
@@ -140,11 +158,17 @@ def test_every_expected_output_is_written(tmp_path: Path) -> None:
         "figures/rq3_primary.png",
         "figures/rq3_secondary.png",
     } <= written
-    assert numbers["inputs"]["n_runs"] == 2 * 3 * len(SCENARIOS) * 2
+    assert numbers["inputs"]["n_runs"] == RUNS_IN_TOTAL
     assert numbers["inputs"]["n_calls"] == numbers["inputs"]["n_runs"] * CALLS_PER_RUN
     assert (
         numbers["rq1"]["primary"]["did"]["estimate"] < 0
     )  # Llama rose, the frontier model did not
+    rq2 = numbers["rq2"]
+    executed = [r for r in rq2["metrics"] if r["metric"] == "executed_violation_rate"]
+    assert all(r["mean"] == 0 for r in executed if r["mediator"] != "none")
+    assert {r["outcome"] for r in rq2["floor"]} == {"met"}  # task success is identical everywhere
+    assert rq2["floor_points"] == 0.05
+    assert all(r["failed_runs"] == 0 for r in rq2["classifier"]) and rq2["classifier"]
     assert numbers["rq3"]["primary"]["auc"] is not None
     assert numbers["rq3"]["primary"]["importance"][0]["rank"] == 1
 
@@ -187,7 +211,7 @@ def test_only_finished_runs_are_read(tmp_path: Path) -> None:
     (cell / "llama_p0_none__S00__s9.raw.jsonl").write_text("{}\n")  # replies only, no main file
     (cell / "llama_p0_none__S01__s9.jsonl").write_text("not json\n")  # unreadable main file
     (cell / "infrastructure_errors.jsonl").write_text("{}\n")
-    assert len(finished_runs(runs)) == 2 * 3 * len(SCENARIOS) * 2
+    assert len(finished_runs(runs)) == RUNS_IN_TOTAL
 
 
 def test_a_part_that_cannot_be_computed_is_reported_not_fatal(tmp_path: Path) -> None:
