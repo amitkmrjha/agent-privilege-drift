@@ -1,6 +1,6 @@
 # D31: Which cells are run, and in what order
 
-- **Status:** Proposed (the plan below needs the supervisor's agreement, because it changes what RQ2 can say; the fall-back is the full grid)
+- **Status:** Accepted by the author (2026-11-21), on the supervisor's general agreement to steps that simplify the experiment while keeping it correct and defensible (relayed by the author; not yet confirmed in writing). Still open with the supervisor: how RQ2 is worded now that IBAC vs MAC is not run, what 2 December covers, and the utility-floor wording. The fall-back remains the full grid.
 - **Date logged:** 2026-11-21
 - **Related:** #26, #29, #30, #31, #32, D09, D20, D26, D27, D28, D30, `docs/pilot.md`, `docs/power.md`
 

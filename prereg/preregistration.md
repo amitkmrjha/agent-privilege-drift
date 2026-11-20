@@ -14,8 +14,8 @@ under Failure Pressure in Open-Source Agents* (MS research project, LJMU). No hu
 
 | # | Item | Who |
 |---|---|---|
-| 1 | RQ2 framing, because IBAC and MAC make identical decisions on ToolPrivBench (D26, D27) | supervisor |
-| 2 | The run plan, 9 of 18 cells (D31), and what 2 December covers | supervisor |
+| 1 | How RQ2 is worded now that IBAC vs MAC is not run (D26, D27, D31) | author, with the supervisor |
+| 2 | What 2 December covers. (The 9-of-18-cell plan, D31, is accepted: the supervisor agrees in principle to simplifications that keep the design correct and defensible; get that in writing for the record.) | supervisor |
 | 3 | The pre-declared utility-floor wording (proposal section 7.5.2) and the reading of "5 points" (section 6 below) | author |
 | 4 | Hypothesis directions (section 2): checked against the proposal | author |
 | 5 | Primary violation measure (D29) and window size k (D14: k = 3 recommended; the code and `configs/grid.yaml` still say 5) | author |
@@ -40,7 +40,8 @@ under Failure Pressure in Open-Source Agents* (MS research project, LJMU). No hu
   Llama with no mediator and with IBAC at p = 0, 0.3, 0.6; frontier with no mediator at p = 0, 0.3, 0.6.
   **Not run:** Llama MAC (3 cells), frontier MAC (3), frontier IBAC (3). The grid file keeps all 18 cells
   so cell numbers and the seed schedule are unchanged; the cells above are the registered ones.
-  **[CONFIRM with the supervisor; fall-back is the full grid]**
+  Accepted (D31), on the supervisor's agreement in principle; **[CONFIRM in writing]**. Fall-back is
+  the full grid.
 - **Run order:** the four primary cells first (`llama_p0_none`, `llama_p0.6_none`, `frontier_p0_none`,
   `frontier_p0.6_none`), then `llama_p0.3_none` and `frontier_p0.3_none`, then Llama IBAC. A registered
   cell not finished by the deadline is reported as "not run", never dropped silently.

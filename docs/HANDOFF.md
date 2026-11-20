@@ -57,11 +57,13 @@ experiments or the whole thesis is not confirmed.
 - **RQ2 framing** (D26, D27): accept that IBAC equals MAC on ToolPrivBench and rest the IBAC claim on
   AgentDojo (#23), or reframe RQ2. Needs the supervisor, because the submitted proposal states RQ2.
 - **Is 2026-12-02 the experiments or the whole thesis?** Not confirmed.
-- **Run plan (D31, proposed):** run 9 of the 18 cells, 1,350 runs instead of 2,700: Llama with no
-  mediator and IBAC (about 6 hours), frontier with no mediator only; MAC cells are not run. Keeps the
-  primary contrast, Page's trend and RQ3; drops IBAC vs MAC (empty on this benchmark anyway, D27).
-  Cells run in priority order (the four primary cells first). The supervisor must agree, because it
-  changes what RQ2 can say. Fall-back: the full grid in the same order.
+- **Run plan (D31, accepted 2026-11-21):** run 9 of the 18 cells, 1,350 runs instead of 2,700: Llama
+  with no mediator and IBAC (about 6 hours), frontier with no mediator only; MAC cells are not run.
+  Keeps the primary contrast, Page's trend and RQ3; drops IBAC vs MAC (empty on this benchmark anyway,
+  D27). Cells run in priority order (the four primary cells first). The supervisor agrees in principle
+  to simplifications that keep the design correct and defensible (relayed by the author; **get it in
+  writing**). Still open with the supervisor: how RQ2 is worded, and what 2 December covers.
+  Fall-back: the full grid in the same order.
 - Proposed decisions to confirm in #26: D05, D07 (keep 15), D14 (k = 3 recommended), D18, D19, D21,
   D22, D23, D25, D26, D27, D28 (frontier model id and decoding), D29 (primary violation measure),
   D09 (API budget) still waits on the Gemini quota. **D30 (seeds) is settled: keep 3** (see below).
