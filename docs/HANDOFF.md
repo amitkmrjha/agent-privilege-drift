@@ -62,8 +62,7 @@ experiments or the whole thesis is not confirmed.
   frontier runs. This is not one of the plan's reduction levers; the supervisor should agree.
 - Proposed decisions to confirm in #26: D05, D07 (keep 15), D14 (k = 3 recommended), D18, D19, D21,
   D22, D23, D25, D26, D27, D28 (frontier model id and decoding), D29 (primary violation measure),
-  **D30 (seeds: the plan's own rule says 5, see below)**. D09 (API budget) still waits on the Gemini
-  quota.
+  D09 (API budget) still waits on the Gemini quota. **D30 (seeds) is settled: keep 3** (see below).
 - **The pre-declared utility-floor wording** (proposal section 7.5.2) is not in this repo. RQ2's report
   takes it as an argument; supply it for the pre-registration.
 
@@ -85,10 +84,14 @@ experiments or the whole thesis is not confirmed.
 writes `docs/power.md`. Result for a true 12-point difference with 50 scenarios: with 3 seeds the plain
 comparison has 76.5 % power at the Holm stand-in level 0.05/18 and the primary difference in
 differences has 78.7 % at 0.05, both just under the plan's 80 %; with 5 seeds they are 96.5 % and
-94.2 %. So the plan's rule says **5 seeds** (900 more runs per model, about 67 % more time, the Llama
-grid from about 9.3 to 15.5 hours). Not applied: `configs/grid.yaml` still says 3 until you confirm
-D30. The noise rests on 10 pilot scenarios, so the figures are rough (the report stresses them); and
-it assumes the per-call rate is primary (D29): re-run if that changes.
+94.2 %. The plan's rule would say 5 seeds (900 more runs per model, about 67 % more time, the Llama
+grid from about 9.3 to 15.5 hours). **Decision (D30, accepted): keep 3 seeds** to keep the runs simple
+and short; `configs/grid.yaml` already says 3. The consequences are recorded in D30: the primary
+contrast is borderline for a 12-point effect (about 12.2 points detectable at 80 % power), so test it
+at 0.05 as one pre-registered test and report a non-significant result as an upper bound; adding
+seeds 4 and 5 stays possible because the seed schedule holds 5 (state it in the pre-registration if
+wanted). The noise rests on 10 pilot scenarios, so the figures are rough; the analysis assumes the
+per-call rate is primary (D29): re-run if that changes.
 
 ## Frontier model: first small test (2026-11-20)
 
@@ -107,8 +110,8 @@ it assumes the per-call rate is primary (D29): re-run if that changes.
 1. Read the ten traces (`runs/pilot/traces_to_read.md`) and note anything odd: closes #25.
 2. Talk to the supervisor: RQ2 framing, frontier scope (all 9 cells or the 3 no-mediator cells), what
    2 December means, the utility-floor wording, and the primary violation measure (D29).
-3. Settle the decisions in #26 (list above), including seeds (D30): if 5, change `seeds_per_scenario` in
-   `configs/grid.yaml` and close #27. Re-run `scripts/power_analysis.py` if D29 changes the measure.
+3. Settle the remaining decisions in #26 (list above). Seeds are settled (D30: keep 3, #27 closed).
+   Re-run `scripts/power_analysis.py` if D29 changes the primary measure.
 4. Frontier model (#28): check the Gemini plan and quota in AI Studio; consider a throttle and a longer
    429 back-off (D09). Choose and pin the model id.
 5. Write the pre-registration (#29), tag and hash the freeze (#30). After the tag, any change is a

@@ -1,6 +1,6 @@
 # D30: Seeds per scenario (3 or 5)
 
-- **Status:** Proposed (the plan's own rule says 5; the author confirms in #26)
+- **Status:** Accepted: keep 3 seeds (the author chose the option that simplifies the run and cuts experiment time, 2026-11-20). The plan's rule pointed to 5; this is a documented departure from it, with the consequences below.
 - **Date logged:** 2026-11-20
 - **Related:** #26, #27, #29, D10, D29, `docs/power.md`
 
@@ -38,6 +38,14 @@ Smallest difference reached with 80 % power at the 0.05 level: for the primary c
 2. **Stay at 3 seeds.** Saves a third of the time, but the primary contrast is under-powered for a 12-point effect, and the smallest effect it can detect at 80 % power is 12.2 points. State that limit up front.
 3. **5 seeds for Llama only.** The frontier arm is the one limited by quota. `seeds_per_scenario` is a single number for the whole grid today, so this needs a small grid change before the freeze, and the two arms would then be averaged over different numbers of seeds.
 
-## Pending / follow-up
+## Decision
 
-Decide in #26. If 5 seeds: change `seeds_per_scenario` in `configs/grid.yaml` (before the freeze) and re-estimate the throughput. Re-run `scripts/power_analysis.py` if D29 changes the primary measure or once more scenarios or runs are available to estimate the noise.
+**Keep `seeds_per_scenario: 3`** in `configs/grid.yaml`. Nothing in the configuration changes. This saves 900 runs per model against 5 seeds: the Llama grid stays at about 9.3 hours instead of about 15.5, and the frontier arm uses a third fewer calls against its unresolved quota (D09).
+
+## What this means for the study (to carry into the pre-registration, #29, and the thesis)
+
+- **The primary contrast is borderline for a 12-point effect:** 78.7 % power at the 0.05 level, just under the plan's 80 %, and it can detect about 12.2 points with 80 % power. State this limit up front, not after the results.
+- **Test the primary contrast at 0.05 as one pre-registered test.** At the stricter Holm stand-in level (0.05/18) its power is only 35.8 %, so putting it inside the 18-test family would leave it unable to detect a 12-point effect. The plain two-cell comparisons are then secondary (76.5 % at the strict level).
+- **A non-significant primary result is reported as an upper bound** ("any difference is smaller than about 12 points"), never as "no effect". If the run-to-run noise is higher than the pilot suggests (twice the estimate), power for the primary contrast falls to about 50 %.
+- **The option to add seeds is kept.** The frozen seed schedule already holds 5 seeds per scenario (D10). If the pre-registration states in advance that seeds 4 and 5 will be added when the primary result is inconclusive, the extension is a planned step, not a deviation. That rule is not adopted here; decide it in #29 if wanted.
+- Re-run `scripts/power_analysis.py` if D29 changes the primary measure.
