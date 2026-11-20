@@ -75,5 +75,5 @@ check-cell:  ## Run the three integrity checks on one cell: make check-cell CELL
 	@test -n "$(CELL)" || { echo "usage: make check-cell CELL=<cell id> [GRID=<file>]" >&2; exit 2; }
 	uv run privilege-drift check-cell $(CELL) $(GRID_FLAG)
 
-analyse:  ## Regenerate every analysis number, table and figure from runs/ into results/ (RQ1, RQ3)
+analyse:  ## Regenerate every analysis number, table and figure from runs/ into results/ (RQ1, RQ2, RQ3)
 	uv run python scripts/analyse.py

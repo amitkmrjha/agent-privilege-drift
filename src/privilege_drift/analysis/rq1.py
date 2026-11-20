@@ -165,14 +165,18 @@ def contrasts_table(table: pd.DataFrame, models: Sequence[str] = DEFAULT_MODELS)
             a, b = (second, p, mediator), (first, p, mediator)
             if a in present and b in present:
                 rows.append(_contrast_row(table, "between_models", a, b))
-    frame = pd.DataFrame(rows)
+    return add_holm(pd.DataFrame(rows))
+
+
+def add_holm(frame: pd.DataFrame, family: str = "kind") -> pd.DataFrame:
+    """Add Holm-adjusted p-values (``p_holm``, ``reject_holm``), one family per value of the
+    ``family`` column. Rows without a p-value are left out of their family."""
     if frame.empty:
         return frame
     frame["p_holm"] = float("nan")
     frame["reject_holm"] = False
-    for _, group in frame.groupby("kind"):
-        usable = group["p_wilcoxon"].notna()
-        index = group.index[usable]
+    for _, group in frame.groupby(family):
+        index = group.index[group["p_wilcoxon"].notna()]
         if len(index) == 0:
             continue
         result = holm(group.loc[index, "p_wilcoxon"].tolist())
