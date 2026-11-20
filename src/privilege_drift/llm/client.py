@@ -10,17 +10,25 @@ from __future__ import annotations
 
 import logging
 import os
+import random
+import re
 import time
 from collections.abc import Callable, Mapping, Sequence
 from typing import Any
 
 import litellm
-from litellm.exceptions import Timeout
+from litellm.exceptions import RateLimitError, Timeout
 from pydantic import BaseModel, ValidationError
 
 from privilege_drift.llm.cache import ResponseCache, cache_key
 from privilege_drift.llm.config import ModelsConfig, ModelSpec
-from privilege_drift.llm.errors import LLMCallError, LLMTimeoutError, MissingCredentialError
+from privilege_drift.llm.errors import (
+    LLMCallError,
+    LLMRateLimitError,
+    LLMTimeoutError,
+    MissingCredentialError,
+    QuotaExhaustedError,
+)
 from privilege_drift.llm.fingerprint import FingerprintFn, OllamaFingerprinter
 from privilege_drift.llm.messages import ChatMessage
 from privilege_drift.llm.truncation import detect_truncation
@@ -78,6 +86,24 @@ def _litellm_token_count(model: str, messages: Sequence[ChatMessage]) -> int:
     return int(litellm.token_counter(model=model, messages=list(messages)))
 
 
+# How providers phrase "wait this long": Gemini's JSON ("retryDelay": "34s"), "Please retry in
+# 34.5s", "retry after 30 seconds".
+_RETRY_HINTS = (
+    re.compile(r"retry[_ ]?(?:delay|after)?[\"']?\s*[:=]?\s*[\"']?(\d+(?:\.\d+)?)\s*s", re.I),
+    re.compile(r"retry in (\d+(?:\.\d+)?)\s*s", re.I),
+)
+
+
+def retry_after_seconds(exc: BaseException) -> float | None:
+    """The wait a provider asked for in a 429 answer, or ``None`` if it gave none."""
+    text = str(exc)
+    for pattern in _RETRY_HINTS:
+        found = pattern.search(text)
+        if found:
+            return float(found.group(1))
+    return None
+
+
 class LLMClient:
     """Calls models by key, applying shared sampling settings and an optional cache."""
 
@@ -90,8 +116,12 @@ class LLMClient:
         token_counter: TokenCounter | None = None,
         environ: Mapping[str, str] | None = None,
         fingerprint_fn: FingerprintFn | None = None,
+        sleep: Callable[[float], None] = time.sleep,
+        rand: Callable[[], float] = random.random,
     ) -> None:
         self.config = config
+        self._sleep = sleep
+        self._rand = rand
         self._cache = cache
         self._completion = completion_fn or litellm.completion
         self._count_tokens = token_counter or _litellm_token_count
@@ -229,24 +259,53 @@ class LLMClient:
         api_base: str | None,
     ) -> tuple[_Parsed, float]:
         conn = self._connection(spec, api_base)
-        start = time.perf_counter()
-        try:
-            response = self._completion(
-                model=spec.litellm_model, messages=list(messages), **params, **conn
-            )
-        except Timeout as exc:
-            raise LLMTimeoutError(
-                f"{model_key} timed out after {self.config.request_timeout_s:g}s",
-                model_key=model_key,
-                model=spec.litellm_model,
-            ) from exc
-        except Exception as exc:  # adapter boundary: wrap whatever the provider raised
-            raise LLMCallError(
-                f"{model_key} call failed: {type(exc).__name__}: {str(exc)[:300]}",
-                model_key=model_key,
-                model=spec.litellm_model,
-            ) from exc
-        return _parse_response(response), time.perf_counter() - start
+        policy = self.config.rate_limit_retry
+        for attempt in range(1, policy.attempts + 1):
+            start = time.perf_counter()  # latency covers the call that worked, not the waiting
+            try:
+                response = self._completion(
+                    model=spec.litellm_model, messages=list(messages), **params, **conn
+                )
+                return _parse_response(response), time.perf_counter() - start
+            except Timeout as exc:
+                raise LLMTimeoutError(
+                    f"{model_key} timed out after {self.config.request_timeout_s:g}s",
+                    model_key=model_key,
+                    model=spec.litellm_model,
+                ) from exc
+            except RateLimitError as exc:
+                hint = retry_after_seconds(exc)
+                if hint is not None and hint > policy.give_up_after_s:
+                    raise QuotaExhaustedError(
+                        f"{model_key}: the provider asked for a wait of {hint:g}s, longer than "
+                        f"the {policy.give_up_after_s:g}s limit, so the quota is treated as "
+                        "exhausted; resume later",
+                        retry_after_s=hint,
+                    ) from exc
+                if attempt == policy.attempts:
+                    raise LLMRateLimitError(
+                        f"{model_key} rate limited on all {policy.attempts} tries: "
+                        f"{type(exc).__name__}: {str(exc)[:1000]}",
+                        model_key=model_key,
+                        model=spec.litellm_model,
+                        retry_after_s=hint,
+                    ) from exc
+                wait = policy.wait_s(attempt, hint_s=hint, rand=self._rand())
+                logger.warning(
+                    "rate limited (429) model=%s try %d of %d, waiting %.1fs",
+                    model_key,
+                    attempt,
+                    policy.attempts,
+                    wait,
+                )
+                self._sleep(wait)
+            except Exception as exc:  # adapter boundary: wrap whatever the provider raised
+                raise LLMCallError(
+                    f"{model_key} call failed: {type(exc).__name__}: {str(exc)[:300]}",
+                    model_key=model_key,
+                    model=spec.litellm_model,
+                ) from exc
+        raise AssertionError("unreachable: the loop returns or raises")  # pragma: no cover
 
     def _build_result(
         self,
