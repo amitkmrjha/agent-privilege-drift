@@ -22,5 +22,13 @@ models:
     num_ctx: 8192
 
   frontier:
-    litellm_model: gemini/gemini-2.5-flash
+    # Provisional until issue #28 picks the frontier model. gemini-2.5-flash returned a 404
+    # ("no longer available to new users") on 2026-11-20, and gemini-3.8-flash was overloaded
+    # (503 "high demand") the same day, so the small test uses a flash-lite model. Pin an exact
+    # id: no "-latest" alias and no "-preview" name, which can change or be retired.
+    litellm_model: gemini/gemini-3.5-flash-lite
     api_key_env: GEMINI_API_KEY
+    # The API rejects these two ("does not support parameters"), so this arm runs on the
+    # provider's default decoding. This differs from the shared `sampling` block above and must
+    # be reported as a limitation of the Llama vs frontier comparison.
+    omit_params: [temperature, top_p]

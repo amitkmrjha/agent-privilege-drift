@@ -146,6 +146,8 @@ class LLMClient:
             "top_p": sampling.top_p,
             "max_tokens": sampling.max_tokens,
         }
+        for name in spec.omit_params:
+            params.pop(name, None)
         if seed is not None:
             params["seed"] = seed
         if stop:

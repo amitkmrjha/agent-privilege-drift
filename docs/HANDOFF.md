@@ -60,6 +60,18 @@ the PRD is **2026-12-02**; whether that means the experiments or the whole thesi
 - Requires Ollama running with `llama3.1:8b-instruct-q4_K_M` (`ollama list`).
 - Pilot results from before the parser fix are in `runs/pilot_before_parser_fix/` (not committed).
 
+## Frontier model: first small test (2026-11-20)
+
+- `configs/pilot_frontier_grid.yaml` runs the frontier model only, no mediator, on the 10 pilot scenarios
+  (results in `runs/pilot_frontier/`, gitignored). Needs `GEMINI_API_KEY` in the shell:
+  `set -a; source .env; set +a`, then `uv run privilege-drift run-cell frontier_p0_none --limit 3 --grid configs/pilot_frontier_grid.yaml`.
+  `.env` is not loaded automatically by `uv run` or `make`.
+- The model is now `gemini/gemini-3.5-flash-lite` (provisional, D28). `gemini-2.5-flash` was closed to new
+  users; `gemini-3.8-flash` was overloaded and rejects `temperature` and `top_p` (see `omit_params`, D28).
+- Result: 9 runs finished with no parse errors and no escalation, but that is one easy scenario.
+  **Open: 429 quota errors.** One run was rate-limited three times before succeeding, so the retry
+  waits are too short and the account's quota is unknown (D09). Revisit before the frontier batch.
+
 ## Next steps, in order
 
 1. Finish the pilot (small pass reviewed, then `make pilot`), write `docs/pilot.md`, close #24.

@@ -5,7 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import yaml
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, field_validator
 
 DEFAULT_MODELS_PATH = Path("configs/models.yaml")
 
@@ -30,6 +30,19 @@ class ModelSpec(BaseModel):
     api_base_env: str | None = None
     api_key_env: str | None = None
     num_ctx: int | None = None
+    # Shared decoding settings this model's API rejects; they are left out of its requests.
+    # Every use is a departure from "identical decoding for both arms" and must be reported.
+    omit_params: tuple[str, ...] = ()
+
+    @field_validator("omit_params")
+    @classmethod
+    def _only_omittable(cls, value: tuple[str, ...]) -> tuple[str, ...]:
+        bad = set(value) - {"temperature", "top_p"}
+        if bad:
+            raise ValueError(
+                f"cannot omit {sorted(bad)}; only temperature and top_p can be left out"
+            )
+        return value
 
 
 class ModelsConfig(BaseModel):

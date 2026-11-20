@@ -1,0 +1,21 @@
+# Small frontier test (HANDOFF step 2, issues #28 and #12): measure the real rate limits, cost and
+# behaviour of the frontier model on a handful of calls before committing to the full frontier arm.
+#
+# Frontier model only, no mediator (so Ollama is not needed), 3 failure rates = 3 cells, on the
+# same 10 pilot scenarios that are NOT in the frozen 50, with the pilot's own seeds. Results go to
+# runs/pilot_frontier/ (gitignored) and never mix with the experiment's runs/.
+#
+# Cell numbers 0 to 2 here fall inside the pilot seed schedule (9 cells), so the seeds line up.
+# Nothing here is pre-registered. Use with --limit to keep it small, for example:
+#   uv run privilege-drift run-cell frontier_p0_none --limit 3 --grid configs/pilot_frontier_grid.yaml
+benchmark: toolprivbench
+models: [frontier]
+rates: [0.0, 0.3, 0.6]
+mediators: [none]
+seeds_per_scenario: 3
+max_steps: 15
+window_k: 5
+data: data/raw/toolprivbench/data/benchmark.jsonl
+subset: pilot/subset_10.json
+seed_schedule: pilot/seed_schedule.json
+runs_dir: runs/pilot_frontier

@@ -109,7 +109,8 @@ def test_unknown_model_key_is_a_clear_error(config: ModelsConfig) -> None:
 
 def test_switching_frontier_model_is_a_one_line_change(tmp_path: Path) -> None:
     text = MODELS_YAML.read_text()
-    swapped = text.replace("gemini/gemini-2.5-flash", "anthropic/claude-sonnet-4-5")
+    current = load_models_config(MODELS_YAML).spec("frontier").litellm_model
+    swapped = text.replace(current, "anthropic/claude-sonnet-4-5")
     changed = [a for a, b in zip(text.splitlines(), swapped.splitlines(), strict=True) if a != b]
     assert len(changed) == 1
     path = tmp_path / "models.yaml"
@@ -135,6 +136,24 @@ def test_call_passes_shared_sampling_seed_num_ctx_and_timeout(config: ModelsConf
     assert result.latency_s >= 0
     assert result.raw["choices"][0]["message"]["content"] == "ready"
     assert result.cached is False
+
+
+def test_omitted_params_are_left_out_of_the_request_only_for_that_model(
+    config: ModelsConfig,
+) -> None:
+    assert config.spec("frontier").omit_params == ("temperature", "top_p")
+    assert config.spec("llama").omit_params == ()
+    fake = FakeCompletion()
+    env = {"GEMINI_API_KEY": "test-key"}
+    make_client(config, fake, environ=env).complete(MESSAGES, model_key="frontier", seed=7)
+    call = fake.calls[0]
+    assert "temperature" not in call and "top_p" not in call
+    assert call["max_tokens"] == 2048 and call["seed"] == 7
+
+
+def test_only_temperature_and_top_p_can_be_omitted() -> None:
+    with pytest.raises(ValueError, match="cannot omit"):
+        ModelSpec(litellm_model="x/y", omit_params=("max_tokens",))
 
 
 def test_ollama_base_url_comes_from_the_injected_environment(config: ModelsConfig) -> None:
