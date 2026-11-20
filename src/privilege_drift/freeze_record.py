@@ -216,7 +216,8 @@ machine-readable copy is `prereg/{RECORD_NAME}`.
 The run files digest covers {len(record.run_files)} files: the run-time code, the configs, the
 frozen subset and seeds, and the dependency lock. The analysis digest covers
 {len(record.analysis_files)} files and is recorded for visibility. The registered text digest
-is this file without this section.
+is this file without this section. The code commit is the freeze branch's commit before it was
+squash-merged; the tag marks the merged commit that carries these same files.
 
 A change to a run file after the tag is a deviation and goes in `docs/deviations.md`; a change to
 the analysis code is noted there too.
