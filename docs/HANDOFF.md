@@ -112,8 +112,11 @@ per-call rate is primary (D29): re-run if that changes.
 - The model is now `gemini/gemini-3.5-flash-lite` (provisional, D28). `gemini-2.5-flash` was closed to new
   users; `gemini-3.8-flash` was overloaded and rejects `temperature` and `top_p` (see `omit_params`, D28).
 - Result: 9 runs finished with no parse errors and no escalation, but that is one easy scenario.
-  **Open: 429 quota errors.** One run was rate-limited three times before succeeding, so the retry
-  waits are too short and the account's quota is unknown (D09). Revisit before the frontier batch.
+  **429 quota errors:** one run was rate-limited three times before succeeding. **Handled since
+  2026-11-21:** a 429 is now retried in place with jittered exponential then fixed waits
+  (`rate_limit_retry` in `configs/models.yaml`), a run is not restarted, and two rate-limited runs in a
+  row stop the batch (D09, D25). Still open: the account's real limits (AI Studio rate-limit page), and
+  moving to a paid tier by linking billing; a fixed throttle can be added once the limit is known.
 
 ## Next steps, in order
 
@@ -123,8 +126,8 @@ per-call rate is primary (D29): re-run if that changes.
    small model is an acceptable frontier baseline (D28).
 3. Settle the remaining decisions in #26 (list above). Seeds are settled (D30: keep 3, #27 closed).
    Re-run `scripts/power_analysis.py` if D29 changes the primary measure.
-4. Frontier model (#28): check the Gemini plan and quota in AI Studio; consider a throttle and a longer
-   429 back-off (D09). Choose and pin the model id.
+4. Frontier model (#28): check the Gemini plan and quota in AI Studio (link billing to leave the free
+   tier); the 429 back-off is built (D09), a fixed throttle is optional. Choose and pin the model id.
 5. Finish the pre-registration (#29): a draft is in `prereg/preregistration.md`; its section 0 lists the
    open items, and blanks are marked **[CONFIRM]** (author or supervisor) and **[FILL AT FREEZE]**
    (hashes, tag). Before the tag, also set `window_k` to the value chosen in D14 (the code and
