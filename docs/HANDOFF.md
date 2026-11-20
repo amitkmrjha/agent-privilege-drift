@@ -117,8 +117,11 @@ per-call rate is primary (D29): re-run if that changes.
    Re-run `scripts/power_analysis.py` if D29 changes the primary measure.
 4. Frontier model (#28): check the Gemini plan and quota in AI Studio; consider a throttle and a longer
    429 back-off (D09). Choose and pin the model id.
-5. Write the pre-registration (#29), tag and hash the freeze (#30). After the tag, any change is a
-   logged deviation (#35).
+5. Finish the pre-registration (#29): a draft is in `prereg/preregistration.md`; its section 0 lists the
+   open items, and blanks are marked **[CONFIRM]** (author or supervisor) and **[FILL AT FREEZE]**
+   (hashes, tag). Before the tag, also set `window_k` to the value chosen in D14 (the code and
+   `configs/grid.yaml` still say 5). Then tag `exp-v1` and hash the freeze (#30). After the tag, any
+   change is a logged deviation (#35).
 6. Phase 3: run the cells in D31's priority order (Llama about 6 hours under the proposed plan) and the
    frontier no-mediator cells, then clean the data (#33). Use `make run-cell CELL=<id>` and
    `make check-cell CELL=<id>`.
