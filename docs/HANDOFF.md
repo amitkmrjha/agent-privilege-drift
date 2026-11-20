@@ -1,15 +1,14 @@
 # Hand-off: where the project is and how to resume
 
-Last updated 2026-11-20. Read this first in a new session, then `AGENTS.md`.
+Last updated 2026-11-21. Read this first in a new session, then `AGENTS.md`.
 
 ## In one paragraph
 
-The research harness for the thesis is **built and tested** (Phase 1 is closed; only the optional
-AgentDojo issue #23 is open), and the **analysis code is built** (statistics library, RQ1, RQ2, RQ3 and
-`make analyse`), so no analysis has run on real experiment data yet. The **Llama pilot has run in full**
-(270 runs, `docs/pilot.md`). We are in **Phase 2**: sanity-check the pilot (#25, you read the traces),
-settle the open decisions (#26), power analysis (#27), choose the frontier model (#28), then the
-pre-registration and freeze. The deadline in the PRD is **2026-12-02**; whether that means the
+The research harness is **built and tested**, the **analysis code is built** (statistics library, RQ1,
+RQ2, RQ3 and `make analyse`), the **Llama pilot has run** (270 runs, `docs/pilot.md`), and the design
+is **frozen: tag `exp-v1`** (on the remote; `prereg/preregistration.md`, hashes in
+`prereg/freeze_record.json`). We are at the start of **Phase 3: the experiment runs**. Nothing has
+been run on the frozen design yet. The deadline in the PRD is **2026-12-02**; whether that means the
 experiments or the whole thesis is not confirmed.
 
 - Repo: https://github.com/amitkmrjha/agent-privilege-drift (`main` is the truth; work by branch and PR)
@@ -125,27 +124,23 @@ per-call rate is primary (D29): re-run if that changes.
 
 ## Next steps, in order
 
-1. Read the ten traces (`runs/pilot/traces_to_read.md`) and note anything odd: closes #25.
-2. Talk to the supervisor, using `docs/supervisor_brief.md`: RQ2 framing, the run plan (D31), what
-   2 December means, the utility-floor wording, the primary violation measure (D29), and whether a
-   small model is an acceptable frontier baseline (D28).
-3. Decisions are settled (list above); #25 is done (traces read, nothing to fix). Re-run
-   `scripts/power_analysis.py` only if the primary measure changes.
-4. Frontier model (#28): check the Gemini plan and quota in AI Studio (link billing to leave the free
-   tier); the 429 back-off is built (D09), a fixed throttle is optional. Choose and pin the model id.
-5. Finish the pre-registration (#29) and freeze (#30). `prereg/preregistration.md` carries CONFIRM and
-   FILL markers in square brackets for what is still open; `uv run python scripts/freeze.py --check`
-   lists them and refuses to proceed while any remain. When none are left: on a branch
-   `scripts/freeze.py --prepare` (hashes the run files, the registered text and the settings into
-   `prereg/freeze_record.json` and fills section 11), open and merge that PR, then on main
-   `scripts/freeze.py --tag --push` (creates and pushes the annotated tag `exp-v1`; the tag must be on
-   the remote before any full run). After the tag, `make freeze-check` shows whether any run file or
-   the registered text has changed: a change is a deviation to log in `docs/deviations.md` (#35).
-6. Phase 3: run the two lanes in D31's priority order (Llama about 9.3 hours; the frontier lane bound
-   by the quota), then clean the data (#33). Use `make run-cell CELL=<id>` and
-   `make check-cell CELL=<id>`.
-7. Phases 4 and 5: run `make analyse` on the real runs, then the results report (#42), the hand-off
-   package (#43) and the release (#44).
+The design is frozen (`exp-v1`). `make freeze-check` shows whether any run file or the registered
+text has changed since: a change is a deviation to log in `docs/deviations.md` (#35).
+
+1. **Before the first full run (not frozen, only timing):** link billing for the Gemini project in AI
+   Studio and read the rate-limit page for `gemini-3.5-flash-lite` (the free tier is what produced the
+   429s). Then run one small frontier cell (`make run-cell CELL=frontier_p0_none LIMIT=3`, with the key
+   loaded: `set -a; source .env; set +a`) to see that the 429 retry copes (D09).
+2. **Phase 3: run the two lanes, in D31's priority order**, resumable and able to run at the same time:
+   *Llama (local, about 9.3 hours, laptop plugged in, Ollama running):* `llama_p0_none`,
+   `llama_p0.6_none`, `llama_p0.3_none`, then IBAC at p = 0 and 0.6, MAC at p = 0 and 0.6, then
+   `llama_p0.3_ibac` and `llama_p0.3_mac`. *Frontier:* the same order with the `frontier_` cells.
+   Use `make run-cell CELL=<id>` then `make check-cell CELL=<id>`. A cell not finished by the deadline
+   is reported as "not run" (the rule is in the pre-registration), and the cuts are pre-declared in D31.
+3. **Clean and freeze the run data** (#33), then `make analyse` (writes `results/`), then the results
+   report (#42), the hand-off package (#43) and the release (#44).
+4. Keep `docs/deviations.md` complete; AgentDojo (#23, #34, #40) is optional and not in this
+   registration.
 
 ## How to resume in a new Claude Code session
 

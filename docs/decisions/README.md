@@ -14,7 +14,7 @@ Status meanings: **Accepted** = rule taken from the PRD or made and done; **Prop
 | D06 | [ReAct format](D06-react-format.md) | Accepted | #17 |
 | D07 | [Retry policy and step cap](D07-retries-and-step-cap.md) | Accepted (2026-11-21) | #17, #24 |
 | D08 | [AgentDojo benign-utility runs](D08-agentdojo-benign-runs.md) | Accepted (only if AgentDojo is kept) | #23, #34 |
-| D09 | [API call budget versus rate limit](D09-api-budget.md) | Pending the pilot | #24, #28, #32 |
+| D09 | [API call budget versus rate limit](D09-api-budget.md) | Accepted (2026-11-21); quota read at run time | #24, #28, #32 |
 | D10 | [Seed schedule versus common random numbers](D10-seed-schedule.md) | Accepted | #14 |
 | D11 | [What the violation rate divides by](D11-violation-rate-denominator.md) | Accepted | #36, #37 |
 | D12 | [How AgentDojo is integrated](D12-agentdojo-integration.md) | Accepted (only if AgentDojo is kept) | #23 |
