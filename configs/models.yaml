@@ -13,6 +13,19 @@ sampling:
 # Per-call timeout in seconds. A hung server fails the call instead of blocking a batch.
 request_timeout_s: 300
 
+# What to do when the provider answers 429 (quota hit), for any model (decisions D09, D25).
+# The same request is retried in place, so a run is not restarted. The wait before retry n is
+# first_wait_s doubled n-1 times up to max_wait_s, then fixed at max_wait_s; each wait is spread by
+# +/- jitter so retries do not land together; a wait the provider asks for is a minimum. If the
+# provider asks for more than give_up_after_s the quota is treated as exhausted and the batch stops.
+# These only change timing, never what the model is asked, so they are safe to tune.
+rate_limit_retry:
+  attempts: 8
+  first_wait_s: 15
+  max_wait_s: 120
+  jitter: 0.25
+  give_up_after_s: 900
+
 models:
   llama:
     litellm_model: ollama/llama3.1:8b-instruct-q4_K_M

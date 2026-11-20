@@ -84,6 +84,9 @@ def run_cell_command(
         f"{report.cell_id}: {report.completed} run now, {report.skipped} already done, "
         f"{len(report.failed)} failed, status {report.status.value}"
     )
+    if report.stopped_reason:
+        typer.echo(f"stopped early: {report.stopped_reason}", err=True)
+        raise typer.Exit(1)
     # A cell left incomplete only because --limit stopped early is not a failure.
     stopped_by_limit = limit is not None and not report.failed
     if report.status is not CellStatus.COMPLETE and not stopped_by_limit:
