@@ -207,14 +207,30 @@ analysis affected by a change after the freeze, is reported as exploratory.
   digest; the local model is 8B; the noise behind the power figures rests on 10 pilot scenarios;
   3 seeds leave the primary contrast borderline for a 12-point effect.
 
-## 11. Freeze record **[FILL AT FREEZE]**
+## 11. Freeze record
+
+Written by `scripts/freeze.py --prepare`; checked by `--verify` (`make freeze-check`). The
+machine-readable copy is `prereg/freeze_record.json`.
 
 | Item | Value |
 |---|---|
-| Git tag and commit | `exp-v1`, [commit sha] |
-| SHA-256 of `configs/grid.yaml`, `configs/models.yaml`, `configs/policies/*`, `configs/intents.yaml`, `configs/tiers/*` | [hashes] |
-| SHA-256 of `src/privilege_drift/agent/prompt.py`, `agent/parser.py`, `mediators/base.py`, `failure/injector.py` | [hashes] |
-| Subset and seed schedule | as in section 1 (`prereg/subsets/HASHES.txt`) |
-| Llama digest | as in section 4 |
-| Frontier model id and first run date | [value] |
-| Date and time of tagging | [value] |
+| Tag | `exp-v1` (created after this record is merged) |
+| Code commit | `b6c515a5e3dc6373aae22fd25ff62f3ae5e413d7` |
+| Recorded at (UTC) | 2026-11-20T23:58:36Z |
+| Run files digest | `3aa5a239dd549fcdf4519f2f4763bc320545b0182ce3d8018af6b6e04c2b7932` |
+| Analysis code digest | `7f44e79bc752e94b3d01debfc71ef19002ef8a03f62b236d3856da75fae5b15c` |
+| Registered text digest | `974f211b840a3219f2b8c869baead446392838b3eb6eba4dc92031ec0c4dbb65` |
+| Benchmark file SHA-256 | `5b96309aa2df7eacc78222f582b5cc20e2241dc8a3e9d30d45d111b172ce4122` |
+| Frontier model | `gemini/gemini-3.5-flash-lite` |
+| Seeds per scenario | 3 |
+| Max steps | 15 |
+| Window k | 3 |
+
+The run files digest covers 56 files: the run-time code, the configs, the
+frozen subset and seeds, and the dependency lock. The analysis digest covers
+8 files and is recorded for visibility. The registered text digest
+is this file without this section. The code commit is the freeze branch's commit before it was
+squash-merged; the tag marks the merged commit that carries these same files.
+
+A change to a run file after the tag is a deviation and goes in `docs/deviations.md`; a change to
+the analysis code is noted there too.
