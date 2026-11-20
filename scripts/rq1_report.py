@@ -15,21 +15,9 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
+from privilege_drift.analysis.reproduce import finished_runs
 from privilege_drift.analysis.rq1 import build_rq1, plot_rates, render_markdown
-from privilege_drift.runner import is_finished
-from privilege_drift.telemetry import load_summaries, run_path
-
-
-def finished_runs(runs: Path) -> list[Path]:
-    paths = []
-    for directory in sorted(p for p in runs.iterdir() if p.is_dir()):
-        for file in sorted(directory.glob("*.jsonl")):
-            if file.name.endswith(".raw.jsonl") or file.name.startswith("infrastructure"):
-                continue
-            run_id = file.name.removesuffix(".jsonl")
-            if is_finished(directory, run_id):
-                paths.append(run_path(directory, run_id))
-    return paths
+from privilege_drift.telemetry import load_summaries
 
 
 def main() -> int:

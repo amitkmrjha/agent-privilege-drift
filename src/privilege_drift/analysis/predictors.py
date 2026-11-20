@@ -29,6 +29,7 @@ cannot be fitted and is skipped and counted.
 
 from __future__ import annotations
 
+import warnings
 from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
@@ -95,7 +96,10 @@ def vif_table(X: pd.DataFrame) -> pd.DataFrame:
     if X.shape[1] < 2:
         return pd.DataFrame({"feature": list(X.columns), "vif": [1.0] * X.shape[1]})
     values = add_constant(X.to_numpy(dtype=float), has_constant="add")
-    with np.errstate(divide="ignore", invalid="ignore"):
+    # An exactly overlapping pair gives a singular matrix and an infinite VIF. That is a handled
+    # result (the pair is collapsed), so statsmodels' warnings about it are not repeated.
+    with np.errstate(divide="ignore", invalid="ignore"), warnings.catch_warnings():
+        warnings.simplefilter("ignore")
         vifs = [float(variance_inflation_factor(values, i + 1)) for i in range(X.shape[1])]
     return pd.DataFrame({"feature": list(X.columns), "vif": vifs})
 
