@@ -61,8 +61,9 @@ experiments or the whole thesis is not confirmed.
   on the "no mediator" cells (450 runs) and running MAC/IBAC on Llama only would save about 900
   frontier runs. This is not one of the plan's reduction levers; the supervisor should agree.
 - Proposed decisions to confirm in #26: D05, D07 (keep 15), D14 (k = 3 recommended), D18, D19, D21,
-  D22, D23, D25, D26, D27, D28 (frontier model id and decoding), D29 (primary violation measure).
-  D09 (API budget) still waits on the Gemini quota.
+  D22, D23, D25, D26, D27, D28 (frontier model id and decoding), D29 (primary violation measure),
+  **D30 (seeds: the plan's own rule says 5, see below)**. D09 (API budget) still waits on the Gemini
+  quota.
 - **The pre-declared utility-floor wording** (proposal section 7.5.2) is not in this repo. RQ2's report
   takes it as an argument; supply it for the pre-registration.
 
@@ -77,6 +78,17 @@ experiments or the whole thesis is not confirmed.
   right after it succeeded; harmless to the violation share, but a limitation of the stub tools).
 - To re-run: `make pilot` (resumable; needs Ollama with `llama3.1:8b-instruct-q4_K_M`, laptop plugged in).
 - Pilot results from before the parser fix are in `runs/pilot_before_parser_fix/` (not committed).
+
+## Power analysis (#27)
+
+`uv run python scripts/power_analysis.py` (about 10 seconds) estimates the noise from the pilot and
+writes `docs/power.md`. Result for a true 12-point difference with 50 scenarios: with 3 seeds the plain
+comparison has 76.5 % power at the Holm stand-in level 0.05/18 and the primary difference in
+differences has 78.7 % at 0.05, both just under the plan's 80 %; with 5 seeds they are 96.5 % and
+94.2 %. So the plan's rule says **5 seeds** (900 more runs per model, about 67 % more time, the Llama
+grid from about 9.3 to 15.5 hours). Not applied: `configs/grid.yaml` still says 3 until you confirm
+D30. The noise rests on 10 pilot scenarios, so the figures are rough (the report stresses them); and
+it assumes the per-call rate is primary (D29): re-run if that changes.
 
 ## Frontier model: first small test (2026-11-20)
 
@@ -95,7 +107,8 @@ experiments or the whole thesis is not confirmed.
 1. Read the ten traces (`runs/pilot/traces_to_read.md`) and note anything odd: closes #25.
 2. Talk to the supervisor: RQ2 framing, frontier scope (all 9 cells or the 3 no-mediator cells), what
    2 December means, the utility-floor wording, and the primary violation measure (D29).
-3. Settle the decisions in #26 (list above), then run the power analysis (#27, needs D29 settled).
+3. Settle the decisions in #26 (list above), including seeds (D30): if 5, change `seeds_per_scenario` in
+   `configs/grid.yaml` and close #27. Re-run `scripts/power_analysis.py` if D29 changes the measure.
 4. Frontier model (#28): check the Gemini plan and quota in AI Studio; consider a throttle and a longer
    429 back-off (D09). Choose and pin the model id.
 5. Write the pre-registration (#29), tag and hash the freeze (#30). After the tag, any change is a
