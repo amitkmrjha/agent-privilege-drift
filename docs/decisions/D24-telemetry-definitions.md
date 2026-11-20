@@ -30,7 +30,7 @@ All predictors are computed from the history before the current call, so an RQ3 
 
 - **`error_surface`: keep as defined.** The plan lists it as a predictor but never defines it, and the PRD says to use all five predictors (I4), so dropping it would break that. The definition above is the simplest one that fits. With a single fixed 503 text it may predict little; if the analysis shows that, report it as a weak predictor rather than redefining it.
 - **`task_success`: keep the provisional definition.** It is simple and has no extra judgement in it. A stricter one is only worth building if the pilot shows the 5-point utility check (#38) needs it.
-- **`k`: keep `DEFAULT_WINDOW_K = 5` for now.** D14 already fixes `k` from the pilot (#24) before pre-registration.
+- **`k`: keep `DEFAULT_WINDOW_K = 5` for now.** D14 already fixes `k` from the pilot (#24) before pre-registration. The pilot is done and D14 recommends k = 3; confirm in #26.
 
 ## Pending / follow-up
 - **Escalation latency** (also in the PRD's M7 list) is not stored; it is derived in analysis from `step_idx` and `injected`.
