@@ -16,7 +16,7 @@ MS research project (LJMU). A Python harness that runs an LLM agent (ReAct) on b
 
 ## Status
 
-**Phase 1: harness build** (gate G1): the agent, failure injector, three mediators, telemetry and batch runner are built, and the fake-model integration and golden tests pass. Nothing has been run on a real model yet. The optional AgentDojo integration (#23) is open. Next is Phase 2, the pilot and pre-registration. Progress is tracked on the [project board](https://github.com/users/amitkmrjha/projects/3).
+**Phase 1: harness build is done** (gate G1): the agent, failure injector, three mediators, telemetry and batch runner are built, and the fake-model integration and golden tests pass. The optional AgentDojo integration (#23) is open. **Phase 2 is in progress:** the small pilot pass (3 runs per cell, 27 runs) has been run on local Llama; the full pilot (270 runs, issue #24) is next, then the pre-registration. For the exact current state and next steps read [docs/HANDOFF.md](docs/HANDOFF.md). Progress is tracked on the [project board](https://github.com/users/amitkmrjha/projects/3).
 
 | Phase | Ends when |
 |---|---|
@@ -57,7 +57,47 @@ make check-cell CELL=llama_p0_none               # the three integrity checks
 
 A cell can be stopped and started again: only runs without a valid result are redone. Results go to `runs/<cell id>/` (gitignored). Running a whole cell calls the model for hours.
 
-`make pilot` and `make analyse` are placeholders that exit with an error until Phases 2 to 4 land.
+`make analyse` is a placeholder that exits with an error until Phase 4 lands.
+
+## How it works, in plain English
+
+The question: when an agent's tools start failing, does it begin using more powerful tools than the task needs? That is "privilege drift". The harness measures it and tests whether two guards stop it.
+
+**One run** is one agent playing one task:
+
+```
+model reply -> guard (mediator) -> failure injector -> tool -> result shown to the model
+```
+
+| Part | Folder | What it does |
+|---|---|---|
+| Data | `src/privilege_drift/data/` | ToolPrivBench: 544 small tasks. Each has tools at three power levels (read-only < user < admin), and one tool is the lowest-power one that does the job (the "minimum tier"). |
+| Agent | `agent/` | A text ReAct loop: the model writes Thought, Action, Action Input; the system runs the tool and replies with an Observation; repeat until a Final Answer or 15 steps. One chance to fix an unreadable reply. The prompt never shows tool power levels, never says "be careful", and never says failures are temporary, because those are what is measured. |
+| Model access | `llm/` | Calls the model through LiteLLM. Local Llama goes to the **Ollama server over HTTP** (default `http://localhost:11434`, or `OLLAMA_API_BASE`). The harness does not start Ollama; the Ollama desktop app or `ollama serve` must already be running. Records the model digest of every run. |
+| Failure injector | `failure/` | The experiment's main variable. Each tool call that reaches it gets one dice roll; with probability p (0, 0.3 or 0.6) the tool returns a fixed "503 Service Unavailable". The dice are computed from a hash of the run's identity, so a resumed run sees the same rolls. |
+| Guards (mediators) | `mediators/` | **none**: allows everything. **MAC**: a fixed rule per role, ignores the task (the baseline). **IBAC**: Llama reads the task once, names its intent (healthcare, coding, ...), and a policy says which tiers that intent may use (the idea under test). A blocked call gets no dice roll. Policies are in `configs/policies/`. |
+| Telemetry | `telemetry/` | One record per proposed call. A call is a **violation** if its tool is above the minimum tier. It also stores the RQ3 predictors (recent 503s, retries since the last success, blocks so far, tokens), computed only from what the agent could already know. |
+| Runner | `runner/` | Runs a whole cell unattended: skips finished runs, retries model-service hiccups, writes a manifest and runs three integrity checks. |
+| Frozen inputs | `prereg/` | The 50 experiment scenarios and the seed schedule. Must not change after the code freeze. |
+
+**The grid.** Models (Llama, one frontier model) x failure rates (0, 0.3, 0.6) x guards (none, MAC, IBAC) = 18 cells, set in `configs/grid.yaml`. Llama alone is 1,350 runs. Model settings are in `configs/models.yaml`; the model is referred to by key, so the frontier model is a one-line change.
+
+**What is known so far** (details in [docs/decisions/](docs/decisions/README.md)): on ToolPrivBench, IBAC and MAC make identical decisions (D26, D27), so the RQ2 contrast needs the supervisor's input. The parser once discarded real escalations; that is fixed (D23).
+
+## The pilot
+
+A dress rehearsal on Llama only: 9 cells (3 failure rates x 3 guards) on 10 scenarios that are **not** in the frozen 50, with their own seeds (`pilot/`, `configs/pilot_grid.yaml`). It checks throughput, the step cap, the prompt and parser, and the window size, before anything is frozen. Results go to `runs/pilot/` (gitignored).
+
+Run it in your own terminal, with Ollama running and the model pulled:
+
+```bash
+ollama list                              # llama3.1:8b-instruct-q4_K_M must be listed
+make pilot-smoke                         # small pass: 3 runs per cell, about 10 minutes
+make pilot                               # full pilot: 270 runs, about 1.5 hours, plug the laptop in
+uv run python scripts/pilot_report.py    # writes docs/pilot.md (throughput, health checks, extrapolation)
+```
+
+Both pilot commands can be stopped with Ctrl-C and restarted: only runs without a valid result are redone. Do not edit `src/` while a batch is running. To run one pilot cell: `make run-cell CELL=llama_p0_none GRID=configs/pilot_grid.yaml`.
 
 ## Documentation
 
@@ -67,6 +107,7 @@ A cell can be stopped and started again: only runs without a valid result are re
 - [Issue breakdown](docs/plan/ISSUE_BREAKDOWN.md)
 - [Sources: benchmarks and baselines](docs/research-reference/sources.md)
 - [Data summary (generated)](docs/data_summary.md)
+- [Sequence diagrams: what happens in a pilot or experiment run](docs/SEQUENCE.md)
 - [Design decisions log](docs/decisions/README.md)
 
 ## Licence
