@@ -108,6 +108,7 @@ Both pilot commands can be stopped with Ctrl-C and restarted: only runs without 
 - [Sources: benchmarks and baselines](docs/research-reference/sources.md)
 - [Data summary (generated)](docs/data_summary.md)
 - [Pilot report (generated)](docs/pilot.md)
+- [Power analysis (generated)](docs/power.md)
 - [Sequence diagrams: what happens in a pilot or experiment run](docs/SEQUENCE.md)
 - [Design decisions log](docs/decisions/README.md)
 
