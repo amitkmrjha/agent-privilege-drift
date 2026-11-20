@@ -1,6 +1,6 @@
 # D28: Frontier model id, and sampling settings the frontier API rejects
 
-- **Status:** Proposed (the model id is provisional until issue #28 chooses the frontier model)
+- **Status:** Accepted by the author (2026-11-21), as recommended, before the freeze. Earlier status: Proposed (the model id is provisional until issue #28 chooses the frontier model)
 - **Date logged:** 2026-11-20
 - **Related:** #28, #24, D09, D20
 
@@ -23,3 +23,7 @@ On 2026-11-20 the planned `gemini-2.5-flash` returned a 404 ("no longer availabl
 ## Pending / follow-up
 
 Owner: #28 (choose the model), #26 (settle this decision). Needs the supervisor's agreement that a flash-lite model is an acceptable "frontier baseline", or a different model.
+
+## Accepted 2026-11-21
+
+Decision: the frontier model is pinned as `gemini/gemini-3.5-flash-lite`. Its decoding: `omit_params` (temperature, top-p) stays until `scripts/check_frontier_params.py` shows whether this model accepts them; if it does, remove `omit_params` before the freeze so both arms use identical decoding.

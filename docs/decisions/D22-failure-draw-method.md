@@ -1,6 +1,6 @@
 # D22: How the failure draws are made
 
-- **Status:** Proposed (departs from the wording of issue #16)
+- **Status:** Accepted by the author (2026-11-21), as recommended, before the freeze. Earlier status: Proposed (departs from the wording of issue #16)
 - **Date logged:** 2026-11-19
 - **Related:** #16, #21, D21
 

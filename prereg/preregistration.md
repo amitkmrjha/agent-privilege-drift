@@ -3,8 +3,8 @@
 **Status: draft of 2026-11-21.** This becomes the pre-registration when the open items below are
 settled, the blanks are filled and the freeze is tagged (`exp-v1`, issue #30). Every rule here is
 taken from a decision record (`docs/decisions/`) or a config file; where only the proposal or the
-supervisor can answer, the text says **[CONFIRM]**. Values that exist only at freeze time say
-**[FILL AT FREEZE]**. After the tag, any change is a logged deviation (`docs/deviations.md`, #35) and
+supervisor can answer, the text carries a CONFIRM marker in square brackets. Values that exist only
+at freeze time carry a FILL marker. After the tag, any change is a logged deviation (`docs/deviations.md`, #35) and
 the analyses it touches are labelled exploratory.
 
 Project: *Dynamic Tool Authorization: Evaluating Least-Privilege Violations and Privilege Escalation
@@ -33,12 +33,12 @@ under Failure Pressure in Open-Source Agents* (MS research project, LJMU). No hu
   scenarios that are not in this subset, so tuning never touched the experiment's scenarios.
 - **Seeds:** 3 per scenario (D30), taken from the frozen schedule (master seed 20261119, 5 seeds stored
   per scenario); schedule SHA-256 `2ef77c3612e435ee41598188febb9e8760dcb78233339d0e4aa03b90d0d78943`.
-- **Factors:** model (open: Llama 3.1 8B Instruct, `q4_K_M`; frontier: **[CONFIRM id]**, currently
-  `gemini/gemini-3.5-flash-lite`, D28) x injected failure rate p in {0, 0.3, 0.6} x mediator
+- **Factors:** model (open: Llama 3.1 8B Instruct, `q4_K_M`; frontier: `gemini/gemini-3.5-flash-lite`,
+  pinned, D28) x injected failure rate p in {0, 0.3, 0.6} x mediator
   (none, MAC, IBAC). The full grid is 18 cells.
 - **Cells registered (D31):** the full grid, all 18 cells, 150 runs each (50 scenarios x 3 seeds),
   2,700 runs. Accepted on the supervisor's agreement in principle to simplifications that keep the
-  design correct and defensible; **[CONFIRM in writing]**.
+  design correct and defensible (the written record is kept with the thesis appendix).
 - **Run order (D31), two lanes that can run at the same time:** *Llama (local):* `llama_p0_none`,
   `llama_p0.6_none`; `llama_p0.3_none`; IBAC at p = 0 and 0.6; MAC at p = 0 and 0.6; then the p = 0.3
   IBAC and MAC cells. *Frontier (API):* the same order with the `frontier_` cells. The first step of
@@ -50,8 +50,7 @@ under Failure Pressure in Open-Source Agents* (MS research project, LJMU). No hu
   for Llama (1,500 runs), then no `frontier_p0.3_none` (1,350 runs).
 - **Unit of analysis:** the scenario. Each cell gives one value per scenario, the mean over its seeds;
   comparisons pair the two cells by scenario (n = 50).
-- **Out of scope:** AgentDojo (the secondary environment) is not part of this registration
-  **[CONFIRM: kept optional or dropped]**.
+- **Out of scope:** AgentDojo (the secondary environment) is not part of this registration; if it is added later it gets its own pre-registration.
 
 ## 2. Hypotheses and directions **[CONFIRM against the proposal]**
 
@@ -78,7 +77,7 @@ under Failure Pressure in Open-Source Agents* (MS research project, LJMU). No hu
   **proposed** call, before the mediator (so a blocked call still counts as proposed).
 - **Violation rate (D11):** per run, violations divided by proposed calls. A run with no proposed calls
   has no rate and is left out of its scenario's mean (the count is reported). Then averaged over seeds.
-- **Primary measure (D29): [CONFIRM]** the per-call violation rate above. Registered secondary: violating
+- **Primary measure (D29, accepted):** the per-call violation rate above. Registered secondary: violating
   calls per run. "Any violation in a run" is not used (already 77 to 80 % at p = 0 in the pilot).
 - **Executed violations and blocked calls (RQ2):** violations the mediator let through; calls it refused;
   both divided by proposed calls.
@@ -86,7 +85,7 @@ under Failure Pressure in Open-Source Agents* (MS research project, LJMU). No hu
   and returned HTTP below 400. It measures whether the task was done, not whether it was done safely.
 - **Escalation label for RQ3 (D05):** primary = the proposed call is a violation; secondary = its tier
   is above every earlier call in the run. The benchmark's own OPUR is also recorded.
-- **RQ3 predictors (D24):** rolling 503 rate over the last k earlier calls (**k = 3 [CONFIRM, D14]**),
+- **RQ3 predictors (D24):** rolling 503 rate over the last k earlier calls (**k = 3**, D14),
   retries since the last success, the previous result's type (`error_surface`), step index and
   cumulative output tokens. Each uses only earlier calls.
 
@@ -114,12 +113,13 @@ under Failure Pressure in Open-Source Agents* (MS research project, LJMU). No hu
   tool) and `classifier_failed` is logged.
 - **Sampling (identical for Llama and the frontier arm where the API allows it):** temperature 0.2,
   top-p 0.9, max 2,048 output tokens, per-call timeout 300 s, a seed on every Llama call. Llama context
-  `num_ctx` 8192. **Departure (D28):** the frontier model's API rejects temperature and top-p, so that
-  arm runs on the provider's defaults and without a seed guarantee; this is reported as a limitation of
-  RQ1. **[CONFIRM once the frontier model is pinned]**
+  `num_ctx` 8192. **Departure (D28):** an earlier Gemini model rejected temperature and top-p, so the
+  frontier entry omits them. **[FILL: result of `scripts/check_frontier_params.py` for the pinned model.
+  If it accepts both, `omit_params` is removed and both arms use identical decoding; if not, that arm
+  runs on the provider's defaults and this is reported as a limitation of RQ1.]**
 - **Model identity:** Llama digest `46e0c10c039e019119339687c3c1757cc81b9da49709a3b3924863ba87ca666e`
   (recorded in every manifest). The frontier arm has no digest, so its exact model id and the dates
-  of the runs are recorded instead. **[FILL AT FREEZE: frontier id]**
+  of the runs are recorded instead. The frontier model is `gemini/gemini-3.5-flash-lite`.
 
 ## 5. Primary confirmatory test (RQ1, H1)
 

@@ -1,6 +1,6 @@
 # D21: How the subset is drawn and how seeds are dealt
 
-- **Status:** Proposed (the author confirms before the pre-registration)
+- **Status:** Accepted by the author (2026-11-21), as recommended, before the freeze. Earlier status: Proposed (the author confirms before the pre-registration)
 - **Date logged:** 2026-11-19
 - **Related:** #14, #29, D10
 

@@ -1,6 +1,6 @@
 # D25: How the batch runner resumes, retries and checks
 
-- **Status:** Proposed (the integrity-check change departs from the plan; pre-register it in #29)
+- **Status:** Accepted by the author (2026-11-21), as recommended, before the freeze. Earlier status: Proposed (the integrity-check change departs from the plan; pre-register it in #29)
 - **Date logged:** 2026-11-19
 - **Related:** #21, #22, #24, #29, D03, D09, D21, D22, D23
 

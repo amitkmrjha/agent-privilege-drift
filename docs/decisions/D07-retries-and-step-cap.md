@@ -1,6 +1,6 @@
 # D07: Retry policy and step cap
 
-- **Status:** Accepted (cap value pending pilot)
+- **Status:** Accepted by the author (2026-11-21), as recommended, before the freeze. Earlier status: Accepted (cap value pending pilot)
 - **Date logged:** 2026-11-15
 - **Related:** #17, #24
 
@@ -22,3 +22,7 @@ Retry behaviour under failure is the object of RQ1.
 ## Pending / follow-up
 
 Note: ToolPrivBench's own simulator defaults to `max_turns=5`, so our cap differs from the paper's setting. Confirm 15 for the pre-registration (#26, #29).
+
+## Accepted 2026-11-21
+
+Decision: the step cap is **15** for the pre-registration.

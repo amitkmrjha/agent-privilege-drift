@@ -1,6 +1,6 @@
 # D18: Tier map for ToolPrivBench
 
-- **Status:** Proposed
+- **Status:** Accepted by the author (2026-11-21), as recommended, before the freeze. Earlier status: Proposed
 - **Date logged:** 2026-11-15
 - **Related:** #13, #19, #20
 

@@ -23,8 +23,8 @@ from privilege_drift.telemetry.records import (
     RunTelemetry,
 )
 
-# Provisional: the window size k is fixed in the pre-registration from the pilot (D14).
-DEFAULT_WINDOW_K = 5
+# The window size k, fixed from the pilot (D14); `configs/grid.yaml` says the same.
+DEFAULT_WINDOW_K = 3
 
 Clock = Callable[[], datetime]
 

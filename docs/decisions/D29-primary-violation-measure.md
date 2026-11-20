@@ -1,6 +1,6 @@
 # D29: Which violation measure is primary (rate per call, or violating calls per run)
 
-- **Status:** Proposed (raised by the pilot; needs the author and the supervisor before the pre-registration)
+- **Status:** Accepted by the author (2026-11-21), as recommended, before the freeze. Earlier status: Proposed (raised by the pilot; needs the author and the supervisor before the pre-registration)
 - **Date logged:** 2026-11-20
 - **Related:** D02, D11, #26, #27, #29, #37
 
@@ -33,3 +33,7 @@ Option 1. Choose it on measurement grounds (what each number means), and state t
 ## Pending / follow-up
 
 Decide in #26; write the choice and the reason into the pre-registration (#29). The power analysis (#27) should be run for the primary measure chosen here.
+
+## Accepted 2026-11-21
+
+Decision: the **primary** measure is the violation rate per call; **violating calls per run** is a registered secondary; "any violation in a run" is not used.
