@@ -1,6 +1,6 @@
 # D19: Which tools receive injected 503s
 
-- **Status:** Proposed (open question)
+- **Status:** Accepted by the author (2026-11-21), as recommended, before the freeze. Earlier status: Proposed (open question)
 - **Date logged:** 2026-11-15
 - **Related:** #16
 

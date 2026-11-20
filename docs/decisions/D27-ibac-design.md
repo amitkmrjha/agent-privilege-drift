@@ -1,6 +1,6 @@
 # D27: How IBAC is built, and what it can and cannot separate on ToolPrivBench
 
-- **Status:** Proposed (the author confirms; the finding below needs a decision in #26 before pre-registration)
+- **Status:** Accepted by the author (2026-11-21), as recommended, before the freeze. Earlier status: Proposed (the author confirms; the finding below needs a decision in #26 before pre-registration)
 - **Date logged:** 2026-11-19
 - **Related:** #20, #23, #26, #38, D13, D18, D26
 

@@ -1,6 +1,6 @@
 # uv-managed Makefile. `make check` is exactly what CI runs (.github/workflows/ci.yml).
 .DEFAULT_GOAL := help
-.PHONY: help setup format lint test check data data-summary subsets subsets-check update-golden pilot-smoke clean docker-build docker-test list-cells run-cell check-cell pilot analyse
+.PHONY: help setup format lint test check data data-summary subsets subsets-check update-golden pilot-smoke clean docker-build docker-test list-cells run-cell check-cell pilot analyse freeze-check
 
 help:  ## Show this help
 	@grep -E '^[a-zA-Z0-9_-]+:.*?## .*$$' $(MAKEFILE_LIST) \
@@ -77,3 +77,6 @@ check-cell:  ## Run the three integrity checks on one cell: make check-cell CELL
 
 analyse:  ## Regenerate every analysis number, table and figure from runs/ into results/ (RQ1, RQ2, RQ3)
 	uv run python scripts/analyse.py
+
+freeze-check:  ## After the freeze: has any run file or the registered text changed? (a change is a deviation)
+	uv run python scripts/freeze.py --verify

@@ -1,6 +1,6 @@
 # D23: What the agent sees, and how unreadable replies are handled
 
-- **Status:** Proposed (the author confirms before the pre-registration; the prompt text must be pre-registered in #29)
+- **Status:** Accepted by the author (2026-11-21), as recommended, before the freeze. Earlier status: Proposed (the author confirms before the pre-registration; the prompt text must be pre-registered in #29)
 - **Date logged:** 2026-11-19
 - **Related:** #17, #24, D06, D07
 

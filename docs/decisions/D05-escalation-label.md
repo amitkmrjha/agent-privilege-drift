@@ -1,6 +1,6 @@
 # D05: Definition of an escalation attempt (RQ3 label)
 
-- **Status:** Proposed
+- **Status:** Accepted by the author (2026-11-21), as recommended, before the freeze. Earlier status: Proposed
 - **Date logged:** 2026-11-15
 - **Related:** #13, #39
 

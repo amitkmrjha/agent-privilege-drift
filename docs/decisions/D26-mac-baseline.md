@@ -1,6 +1,6 @@
 # D26: What the MAC baseline is (reimplemented from the paper, simplified)
 
-- **Status:** Proposed (the author confirms before pre-registration; the framing question below matters for RQ2)
+- **Status:** Accepted by the author (2026-11-21), as recommended, before the freeze. Earlier status: Proposed (the author confirms before pre-registration; the framing question below matters for RQ2)
 - **Date logged:** 2026-11-19
 - **Related:** #19, #20, #26, #38, D01, D04, D18
 

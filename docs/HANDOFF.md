@@ -70,11 +70,16 @@ experiments or the whole thesis is not confirmed.
   Llama (1,500), then no `frontier_p0.3_none` (1,350). The supervisor agrees in principle to
   simplifications that keep the design correct and defensible (relayed by the author; **get it in
   writing**).
-- Proposed decisions to confirm in #26: D05, D07 (keep 15), D14 (k = 3 recommended), D18, D19, D21,
-  D22, D23, D25, D26, D27, D28 (frontier model id and decoding), D29 (primary violation measure),
-  D09 (API budget) still waits on the Gemini quota. **D30 (seeds) is settled: keep 3** (see below).
-- **The pre-declared utility-floor wording** (proposal section 7.5.2) is not in this repo. RQ2's report
-  takes it as an argument; supply it for the pre-registration.
+- **Accepted 2026-11-21 (as recommended):** D05, D07 (15 steps), D14 (k = 3, now in `configs/grid.yaml`),
+  D18, D19, D21, D22, D23, D25, D26, D27, D28 (model pinned as `gemini/gemini-3.5-flash-lite`), D29
+  (per-call rate primary), D30 (3 seeds), D31 (the run plan). D09 (API budget) still waits on the
+  Gemini quota and billing.
+- **Open for the freeze** (`uv run python scripts/freeze.py --check` lists them): the proposal's
+  hypothesis directions and the pre-declared utility-floor wording (proposal section 7.5.2, which the
+  author is to paste in); the frontier decoding check (`scripts/check_frontier_params.py`, needs the
+  key; if the model accepts temperature and top-p, drop `omit_params`); and the pre-registration's own
+  proposals to tick: the reading of "5 pp", how the primary result is read, the Holm families, RQ3
+  pooling, the lever list, the confirmatory/exploratory split, and truncation handling.
 
 ## The pilot (#24, done)
 
@@ -124,15 +129,18 @@ per-call rate is primary (D29): re-run if that changes.
 2. Talk to the supervisor, using `docs/supervisor_brief.md`: RQ2 framing, the run plan (D31), what
    2 December means, the utility-floor wording, the primary violation measure (D29), and whether a
    small model is an acceptable frontier baseline (D28).
-3. Settle the remaining decisions in #26 (list above). Seeds are settled (D30: keep 3, #27 closed).
-   Re-run `scripts/power_analysis.py` if D29 changes the primary measure.
+3. Decisions are settled (list above); #25 is done (traces read, nothing to fix). Re-run
+   `scripts/power_analysis.py` only if the primary measure changes.
 4. Frontier model (#28): check the Gemini plan and quota in AI Studio (link billing to leave the free
    tier); the 429 back-off is built (D09), a fixed throttle is optional. Choose and pin the model id.
-5. Finish the pre-registration (#29): a draft is in `prereg/preregistration.md`; its section 0 lists the
-   open items, and blanks are marked **[CONFIRM]** (author or supervisor) and **[FILL AT FREEZE]**
-   (hashes, tag). Before the tag, also set `window_k` to the value chosen in D14 (the code and
-   `configs/grid.yaml` still say 5). Then tag `exp-v1` and hash the freeze (#30). After the tag, any
-   change is a logged deviation (#35).
+5. Finish the pre-registration (#29) and freeze (#30). `prereg/preregistration.md` carries CONFIRM and
+   FILL markers in square brackets for what is still open; `uv run python scripts/freeze.py --check`
+   lists them and refuses to proceed while any remain. When none are left: on a branch
+   `scripts/freeze.py --prepare` (hashes the run files, the registered text and the settings into
+   `prereg/freeze_record.json` and fills section 11), open and merge that PR, then on main
+   `scripts/freeze.py --tag --push` (creates and pushes the annotated tag `exp-v1`; the tag must be on
+   the remote before any full run). After the tag, `make freeze-check` shows whether any run file or
+   the registered text has changed: a change is a deviation to log in `docs/deviations.md` (#35).
 6. Phase 3: run the two lanes in D31's priority order (Llama about 9.3 hours; the frontier lane bound
    by the quota), then clean the data (#33). Use `make run-cell CELL=<id>` and
    `make check-cell CELL=<id>`.
