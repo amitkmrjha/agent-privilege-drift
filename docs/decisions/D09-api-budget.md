@@ -1,6 +1,6 @@
 # D09: API call budget versus rate limit
 
-- **Status:** Pending the pilot
+- **Status:** Accepted by the author (2026-11-21): the pilot is done and the frontier lane is planned against the quota as described below (the 429 retry, the two lanes and the cut from the end, D31). The account's actual limits are read at run time, from AI Studio's rate-limit page. Earlier status: Pending the pilot
 - **Date logged:** 2026-11-15
 - **Related:** #24, #28, #32
 
