@@ -241,14 +241,15 @@ machine-readable copy is `prereg/freeze_record.json`.
 
 | Item | Value |
 |---|---|
-| Tag | `exp-v1` (created after this record is merged) |
-| Code commit | `b6c515a5e3dc6373aae22fd25ff62f3ae5e413d7` |
-| Recorded at (UTC) | 2026-11-20T23:58:36Z |
-| Run files digest | `3aa5a239dd549fcdf4519f2f4763bc320545b0182ce3d8018af6b6e04c2b7932` |
-| Analysis code digest | `7f44e79bc752e94b3d01debfc71ef19002ef8a03f62b236d3856da75fae5b15c` |
-| Registered text digest | `974f211b840a3219f2b8c869baead446392838b3eb6eba4dc92031ec0c4dbb65` |
+| Tag | `exp-v2` (created after this record is merged) |
+| Code commit | `98fe0e6572fabf1277033eefaca0c5f9c003dc9f` |
+| Recorded at (UTC) | 2026-11-21T14:05:53Z |
+| Run files digest | `b23c985074f47ca667bd4008202e38e5d4a248354b91fe58fe047046247674ee` |
+| Analysis code digest | `0de3d90fab27ac669adf338a5b3eb499a0781e36279c9e579507c3397ae8554d` |
+| Registered text digest | `812c03b74d2b31497e77b8eacde1bd3ca5eeb544febb4ba75bfbccb9b1531649` |
 | Benchmark file SHA-256 | `5b96309aa2df7eacc78222f582b5cc20e2241dc8a3e9d30d45d111b172ce4122` |
 | Frontier model | `gemini/gemini-3.5-flash-lite` |
+| Large frontier model (exp-v2) | `gemini/gemini-4-carbon` |
 | Seeds per scenario | 3 |
 | Max steps | 15 |
 | Window k | 3 |
