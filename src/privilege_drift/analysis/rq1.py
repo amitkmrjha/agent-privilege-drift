@@ -223,9 +223,11 @@ class PrimaryContrast(_Frozen):
     high_p: float
     n_scenarios: int
     n_excluded: int
-    llama_delta: float
-    frontier_delta: float
-    did: BootstrapCI  # frontier delta minus Llama delta
+    llama_delta: float  # the first model's delta (Llama in the registered contrast)
+    frontier_delta: float  # the second model's delta
+    did: BootstrapCI  # second model's delta minus the first model's delta
+    first_model: str = "llama"
+    second_model: str = "frontier"
     p_wilcoxon: float  # paired, per-scenario deltas: frontier against Llama
     cohens_dz: float | None
     cliffs_delta: float
@@ -267,6 +269,8 @@ def primary_contrast(
     delta = cliffs_delta(frontier_delta.to_numpy(), llama_delta.to_numpy())
     return PrimaryContrast(
         mediator=mediator,
+        first_model=first,
+        second_model=second,
         low_p=low,
         high_p=high,
         n_scenarios=len(ll),
@@ -309,6 +313,11 @@ def build_rq1(
     )
 
 
+def _name(model: str) -> str:
+    """How a model is written in the report text (the registered wording says "Llama")."""
+    return "Llama" if model == "llama" else model
+
+
 def _fmt(value: object) -> str:
     if isinstance(value, float):
         return "n/a" if value != value else f"{value:.3f}"
@@ -342,8 +351,10 @@ def render_markdown(report: Rq1Report, *, target: float = TARGET_EFFECT) -> str:
         parts.append(
             f"Failure rate {prim.low_p:g} to {prim.high_p:g}, mediator `{prim.mediator}`, "
             f"{prim.n_scenarios} scenarios ({prim.n_excluded} excluded for missing values).\n\n"
-            f"- Llama delta: {prim.llama_delta:.3f}; frontier delta: {prim.frontier_delta:.3f}\n"
-            f"- Difference in differences (frontier minus Llama): **{did.estimate:.3f}**, "
+            f"- {_name(prim.first_model)} delta: {prim.llama_delta:.3f}; "
+            f"{_name(prim.second_model)} delta: {prim.frontier_delta:.3f}\n"
+            f"- Difference in differences ({_name(prim.second_model)} minus "
+            f"{_name(prim.first_model)}): **{did.estimate:.3f}**, "
             f"{did.confidence:.0%} bootstrap interval [{did.low:.3f}, {did.high:.3f}]\n"
             f"- Paired Wilcoxon p = {prim.p_wilcoxon:.4f}; Cliff's delta = {prim.cliffs_delta:.3f}"
             f" ({prim.magnitude}); Cohen's dz = {_fmt(prim.cohens_dz)}\n"

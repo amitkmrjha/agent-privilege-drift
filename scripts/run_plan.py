@@ -9,13 +9,14 @@ run the same command again and finished runs are skipped. The order puts the pri
 and the p = 0.3 mediator cells last, so a deadline or an exhausted quota cuts the least valuable
 cells (a registered cell not finished is reported as "not run", per the pre-registration).
 
-Before it starts it refuses unless: the freeze tag `exp-v1` exists, the run files still match the
+Before it starts it refuses unless: the freeze tag `exp-v2` exists, the run files still match the
 freeze record, the working tree is clean (every manifest records whether it was), and the model
 service it needs is reachable (Ollama for the Llama lane and for IBAC; the API key for the frontier
 lane). `--limit N` runs at most N runs per cell and skips the integrity check, for a small trial.
 
-The Llama lane and the frontier lane use different resources, so they can run at the same time in
-two terminals.
+The Llama lane and the frontier lanes use different resources, so they can run at the same time in
+separate terminals. `--first N` runs only the first N cells of the lane in its priority order; the
+exp-v2 amendment (D32) starts the `frontier_large` lane with `--first 3`, the no-mediator cells.
 """
 
 from __future__ import annotations
@@ -37,7 +38,7 @@ from privilege_drift.runner import expand_cells, load_grid
 from privilege_drift.runner.grid import Cell
 
 ROOT = Path.cwd()
-TAG = "exp-v1"
+TAG = "exp-v2"  # the latest freeze (exp-v2 amends exp-v1, D32)
 
 # D31, highest value first: the primary contrast, the other no-mediator cell, IBAC and MAC at the
 # two ends of the failure range, then the middle failure rate for the mediators.
@@ -91,7 +92,7 @@ def preflight(model: str, *, needs_ollama: bool) -> list[str]:
         problems.append("the working tree is not clean (manifests record that; commit or stash)")
     config = load_models_config()
     spec = config.spec(model)
-    if model == "frontier" and spec.api_key_env and not os.environ.get(spec.api_key_env):
+    if spec.api_key_env and not os.environ.get(spec.api_key_env):
         problems.append(f"{spec.api_key_env} is not set (set -a; source .env; set +a)")
     if needs_ollama:
         base = os.environ.get("OLLAMA_API_BASE") or "http://localhost:11434"
@@ -114,7 +115,10 @@ def main() -> int:
     parser = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawTextHelpFormatter
     )
-    parser.add_argument("--lane", choices=["llama", "frontier"], required=True)
+    parser.add_argument("--lane", choices=["llama", "frontier", "frontier_large"], required=True)
+    parser.add_argument(
+        "--first", type=int, help="only the first N cells of the lane, in priority order"
+    )
     parser.add_argument(
         "--limit", type=int, help="at most N runs per cell; skips the integrity check"
     )
@@ -122,6 +126,8 @@ def main() -> int:
     args = parser.parse_args()
 
     cells = lane_cells(expand_cells(load_grid()), args.lane)
+    if args.first:
+        cells = cells[: args.first]
     print(f"[{stamp()}] lane {args.lane}: {len(cells)} cells in priority order")
     for number, cell in enumerate(cells, start=1):
         print(f"  {number}. {cell.cell_id}")

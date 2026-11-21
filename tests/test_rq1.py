@@ -153,3 +153,14 @@ def test_the_report_says_when_the_primary_contrast_cannot_be_computed() -> None:
     data = make_summaries()
     text = render_markdown(build_rq1(data[data.model == "llama"], seed=1, n_boot=50))
     assert "Not computed" in text
+
+
+def test_the_primary_contrast_can_compare_another_pair_of_models() -> None:
+    """The exp-v2 amendment compares a third model with Llama using the same contrast (D32)."""
+    summaries = make_summaries()
+    renamed = summaries.assign(model=summaries["model"].replace({"frontier": "frontier_large"}))
+    report = build_rq1(renamed, seed=1, n_boot=200, models=("llama", "frontier_large"))
+    assert report.primary is not None
+    assert (report.primary.first_model, report.primary.second_model) == ("llama", "frontier_large")
+    assert report.primary.did.estimate < 0
+    assert "frontier_large minus Llama" in render_markdown(report)

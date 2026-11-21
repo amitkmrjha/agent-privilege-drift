@@ -1,6 +1,6 @@
 # uv-managed Makefile. `make check` is exactly what CI runs (.github/workflows/ci.yml).
 .DEFAULT_GOAL := help
-.PHONY: help setup format lint test check data data-summary subsets subsets-check update-golden pilot-smoke clean docker-build docker-test list-cells run-cell check-cell pilot analyse freeze-check run-plan
+.PHONY: help setup format lint test check data data-summary subsets subsets-check update-golden pilot-smoke clean docker-build docker-test list-cells run-cell check-cell pilot analyse analyse-v2 freeze-check run-plan
 
 help:  ## Show this help
 	@grep -E '^[a-zA-Z0-9_-]+:.*?## .*$$' $(MAKEFILE_LIST) \
@@ -75,12 +75,16 @@ check-cell:  ## Run the three integrity checks on one cell: make check-cell CELL
 	@test -n "$(CELL)" || { echo "usage: make check-cell CELL=<cell id> [GRID=<file>]" >&2; exit 2; }
 	uv run privilege-drift check-cell $(CELL) $(GRID_FLAG)
 
-analyse:  ## Regenerate every analysis number, table and figure from runs/ into results/ (RQ1, RQ2, RQ3)
-	uv run python scripts/analyse.py
+analyse:  ## The registered (exp-v1) analysis: llama and frontier only, into results/ (RQ1, RQ2, RQ3)
+	uv run python scripts/analyse.py --models llama,frontier
+
+analyse-v2:  ## The exp-v2 amendment: large model against Llama and against Flash-Lite, into results/amendment_*/
+	uv run python scripts/analyse.py --models llama,frontier_large --out results/amendment_llama
+	uv run python scripts/analyse.py --models frontier,frontier_large --out results/amendment_frontier
 
 freeze-check:  ## After the freeze: has any run file or the registered text changed? (a change is a deviation)
 	uv run python scripts/freeze.py --verify
 
-run-plan:  ## Run one lane of the plan in its pre-registered order, with integrity checks: make run-plan LANE=llama|frontier [LIMIT=n]
-	@test -n "$(LANE)" || { echo "usage: make run-plan LANE=llama|frontier [LIMIT=<n>]" >&2; exit 2; }
-	uv run python scripts/run_plan.py --lane $(LANE) $(if $(LIMIT),--limit $(LIMIT),)
+run-plan:  ## Run one lane of the plan in its pre-registered order, with integrity checks: make run-plan LANE=llama|frontier|frontier_large [LIMIT=n] [FIRST=n]
+	@test -n "$(LANE)" || { echo "usage: make run-plan LANE=llama|frontier|frontier_large [LIMIT=<n>] [FIRST=<n>]" >&2; exit 2; }
+	uv run python scripts/run_plan.py --lane $(LANE) $(if $(LIMIT),--limit $(LIMIT),) $(if $(FIRST),--first $(FIRST),)

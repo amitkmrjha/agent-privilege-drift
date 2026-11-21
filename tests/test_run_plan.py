@@ -44,14 +44,31 @@ def test_the_frontier_lane_has_the_same_order_with_its_own_cells() -> None:
 
 
 def test_the_primary_contrast_cells_come_first_in_each_lane() -> None:
-    for model in ("llama", "frontier"):
+    for model in ("llama", "frontier", "frontier_large"):
         first_two = {(c.mediator, c.p) for c in PLAN.lane_cells(CELLS, model)[:2]}
         assert first_two == {("none", 0.0), ("none", 0.6)}
 
 
-def test_the_two_lanes_together_cover_the_whole_grid_once() -> None:
-    both = PLAN.lane_cells(CELLS, "llama") + PLAN.lane_cells(CELLS, "frontier")
-    assert sorted(c.cell_id for c in both) == sorted(c.cell_id for c in CELLS)
+def test_the_large_frontier_lane_has_the_same_order_with_its_own_cells() -> None:
+    ids = [c.cell_id for c in PLAN.lane_cells(CELLS, "frontier_large")]
+    assert ids == [i.replace("llama_", "frontier_large_") for i in LLAMA_ORDER]
+
+
+def test_the_three_lanes_together_cover_the_whole_grid_once() -> None:
+    lanes = ("llama", "frontier", "frontier_large")
+    every = [c for lane in lanes for c in PLAN.lane_cells(CELLS, lane)]
+    assert sorted(c.cell_id for c in every) == sorted(c.cell_id for c in CELLS)
+
+
+def test_the_first_three_cells_of_a_lane_are_the_no_mediator_cells() -> None:
+    first = PLAN.lane_cells(CELLS, "frontier_large")[:3]
+    assert [(c.mediator, c.p) for c in first] == [("none", 0.0), ("none", 0.6), ("none", 0.3)]
+
+
+def test_the_exp_v1_cells_keep_their_numbers_when_a_model_is_appended() -> None:
+    by_id = {c.cell_id: c.idx for c in CELLS}
+    assert by_id["llama_p0_none"] == 0 and by_id["frontier_p0.6_mac"] == 16
+    assert by_id["frontier_large_p0_none"] == 18 and by_id["frontier_large_p0.6_mac"] == 25
 
 
 def test_the_middle_failure_rate_for_mediators_is_last() -> None:

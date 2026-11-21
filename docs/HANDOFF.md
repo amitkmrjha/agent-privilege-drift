@@ -1,5 +1,12 @@
 # Hand-off: where the project is and how to resume
 
+> **Amendment exp-v2 (2026-11-21, D32).** After the exp-v1 results were seen, a large frontier model
+> (`frontier_large` = `gemini/gemini-4-carbon`) is added as a separately registered amendment
+> (`prereg/preregistration.md` section 10A). The exp-v1 results are complete and unchanged; the
+> amendment runs the three no-mediator cells first (`make run-plan LANE=frontier_large FIRST=3`).
+> `make analyse` stays on the registered pair; `make analyse-v2` runs the amendment contrasts.
+
+
 Last updated 2026-11-21. Read this first in a new session, then `AGENTS.md`.
 
 ## In one paragraph
