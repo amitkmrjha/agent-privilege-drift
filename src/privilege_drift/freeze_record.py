@@ -106,6 +106,7 @@ class FreezeRecord(BaseModel):
     prereg_digest: str
     benchmark_sha256: str
     frontier_model: str
+    frontier_large_model: str = ""  # added by the exp-v2 amendment; empty in the exp-v1 record
     seeds_per_scenario: int
     max_steps: int
     window_k: int
@@ -123,6 +124,7 @@ def build_record(
     seeds_per_scenario: int,
     max_steps: int,
     window_k: int,
+    frontier_large_model: str = "",
 ) -> FreezeRecord:
     run_files = hash_files(root, RUN_PATTERNS)
     analysis_files = hash_files(root, ANALYSIS_PATTERNS)
@@ -137,6 +139,7 @@ def build_record(
         prereg_digest=prereg_digest(prereg_text),
         benchmark_sha256=benchmark_sha256,
         frontier_model=frontier_model,
+        frontier_large_model=frontier_large_model,
         seeds_per_scenario=seeds_per_scenario,
         max_steps=max_steps,
         window_k=window_k,
@@ -194,6 +197,11 @@ def compare(root: Path, record: FreezeRecord, prereg_text: str) -> Drift:
 
 def freeze_section(record: FreezeRecord) -> str:
     """The pre-registration's freeze-record section, filled from the record."""
+    large_row = (
+        f"| Large frontier model (exp-v2) | `{record.frontier_large_model}` |\n"
+        if record.frontier_large_model
+        else ""
+    )
     return f"""{FREEZE_SECTION}
 
 Written by `scripts/freeze.py --prepare`; checked by `--verify` (`make freeze-check`). The
@@ -209,7 +217,7 @@ machine-readable copy is `prereg/{RECORD_NAME}`.
 | Registered text digest | `{record.prereg_digest}` |
 | Benchmark file SHA-256 | `{record.benchmark_sha256}` |
 | Frontier model | `{record.frontier_model}` |
-| Seeds per scenario | {record.seeds_per_scenario} |
+{large_row}| Seeds per scenario | {record.seeds_per_scenario} |
 | Max steps | {record.max_steps} |
 | Window k | {record.window_k} |
 

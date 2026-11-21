@@ -37,3 +37,4 @@ Status meanings: **Accepted** = rule taken from the PRD or made and done; **Prop
 | D29 | [Which violation measure is primary (rate per call, or violating calls per run)](D29-primary-violation-measure.md) | Accepted (2026-11-21) | #26, #27, #29, #37 |
 | D30 | [Seeds per scenario (3 or 5)](D30-seeds-per-scenario.md) | Accepted: keep 3 (departs from the plan's rule; consequences recorded) | #26, #27, #29 |
 | D31 | [Which cells are registered, and in what order they are run](D31-run-plan.md) | Accepted by the author: the full 18-cell grid in two priority-ordered lanes; mitigation (cut from the end) decided later, pre-declared (supervisor agrees in principle) | #26, #29, #31, #32 |
+| D32 | [Amendment exp-v2: add a large frontier model (Gemini 4 Carbon), after the exp-v1 results](D32-exp-v2-large-frontier-model.md) | Proposed (2026-11-21); accepted at the exp-v2 freeze | #28, #30 |

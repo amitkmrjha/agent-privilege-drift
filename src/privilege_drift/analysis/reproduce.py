@@ -29,6 +29,7 @@ from __future__ import annotations
 import hashlib
 import json
 import math
+from collections.abc import Sequence
 from pathlib import Path
 from typing import Any
 
@@ -91,9 +92,20 @@ def _write_csv(frame: pd.DataFrame, path: Path) -> None:
     frame.to_csv(path, index=False)
 
 
-def _analyse_rq1(summaries: pd.DataFrame, out: Path, *, seed: int, n_boot: int) -> dict[str, Any]:
+def _analyse_rq1(
+    summaries: pd.DataFrame,
+    out: Path,
+    *,
+    seed: int,
+    n_boot: int,
+    models: Sequence[str] | None = None,
+) -> dict[str, Any]:
     try:
-        report = rq1.build_rq1(summaries, seed=seed, n_boot=n_boot)
+        report = (
+            rq1.build_rq1(summaries, seed=seed, n_boot=n_boot)
+            if models is None
+            else rq1.build_rq1(summaries, seed=seed, n_boot=n_boot, models=models)
+        )
     except ValueError as exc:
         return {"skipped": str(exc)}
     _write_csv(report.rates, out / "tables" / "rq1_rates.csv")
@@ -188,9 +200,19 @@ def run_analysis(
     n_boot_rq1: int = 10_000,
     n_boot_rq2: int = 10_000,
     n_boot_rq3: int = 1_000,
+    models: Sequence[str] | None = None,
 ) -> dict[str, Any]:
-    """Run every implemented analysis on the finished runs and write the outputs to ``out``."""
+    """Run every implemented analysis on the finished runs and write the outputs to ``out``.
+
+    ``models`` limits the analysis to those models' cells (the exp-v1 results are the default
+    pair; the exp-v2 amendment analyses ``("llama", "frontier_large")`` and
+    ``("frontier", "frontier_large")`` on their own, so the registered families of tests are not
+    changed by the added model). With two models, the first is the reference for the primary
+    contrast and the second is the model whose change is compared with it.
+    """
     paths = finished_runs(runs)
+    if models is not None:
+        paths = [p for p in paths if any(p.parent.name.startswith(f"{m}_p") for m in models)]
     if not paths:
         raise ValueError(f"no finished runs under {runs}")
     summaries = load_summaries(paths)
@@ -210,7 +232,7 @@ def run_analysis(
             "n_boot_rq2": n_boot_rq2,
             "n_boot_rq3": n_boot_rq3,
         },
-        "rq1": _analyse_rq1(summaries, out, seed=seed, n_boot=n_boot_rq1),
+        "rq1": _analyse_rq1(summaries, out, seed=seed, n_boot=n_boot_rq1, models=models),
         "rq2": _analyse_rq2(summaries, out, seed=seed, n_boot=n_boot_rq2, domains=domains),
         "rq3": {
             label: _analyse_rq3(calls, out, label, seed=seed, n_boot=n_boot_rq3)

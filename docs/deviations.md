@@ -24,4 +24,5 @@ under the rule written in the pre-registration (section 1) and D31; mention it i
 
 | Date | What changed | Why | Cells and analyses affected | Now exploratory |
 |---|---|---|---|---|
-| (none yet) | | | | |
+| 2026-11-21 | Gemini quota stop and resume: the frontier lane stopped at 13:41 when the provider asked for a 19.3 h wait (daily quota), and was resumed at 13:53 after the limit was raised. | Provider limit, not a design change. | `frontier_p0.6_none` (one run was redone from its start); no run file changed. | No |
+| 2026-11-21 | Amendment exp-v2 (D32): added the `frontier_large` model, 9 cells and a three-lane run plan, after the exp-v1 results were seen. Registered in section 10A before any run of the new model; exp-v1 files otherwise unchanged. | A large frontier baseline, to answer the objection that Flash-Lite is not a frontier model. | New cells 18 to 26 only; the exp-v1 analyses are unchanged and reproduce exactly. | The amendment's analyses are labelled as in section 10A (A1 and A2; the rest exploratory). |

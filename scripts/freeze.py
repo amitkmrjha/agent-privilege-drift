@@ -42,7 +42,7 @@ from privilege_drift.runner import load_grid
 ROOT = Path.cwd()
 PREREG = ROOT / "prereg" / "preregistration.md"
 RECORD = ROOT / "prereg" / RECORD_NAME
-DEFAULT_TAG = "exp-v1"
+DEFAULT_TAG = "exp-v2"
 
 
 def git(*args: str) -> str:
@@ -74,6 +74,7 @@ def settings() -> dict[str, object]:
         "window_k": grid.window_k,
         "frontier_model": load_models_config().spec("frontier").litellm_model,
         "frontier_omit_params": load_models_config().spec("frontier").omit_params,
+        "frontier_large_model": load_models_config().spec("frontier_large").litellm_model,
     }
 
 
@@ -87,6 +88,7 @@ def make_record(tag: str) -> FreezeRecord:
         prereg_text=PREREG.read_text(),
         benchmark_sha256=BENCHMARK_SHA256,
         frontier_model=str(s["frontier_model"]),
+        frontier_large_model=str(s["frontier_large_model"]),
         seeds_per_scenario=int(str(s["seeds_per_scenario"])),
         max_steps=int(str(s["max_steps"])),
         window_k=int(str(s["window_k"])),
@@ -202,7 +204,7 @@ def main() -> int:
     mode.add_argument("--prepare", action="store_true")
     mode.add_argument("--verify", action="store_true")
     mode.add_argument("--tag-now", "--tag", dest="tag_now", action="store_true")
-    parser.add_argument("--name", default=DEFAULT_TAG, help="tag name (default exp-v1)")
+    parser.add_argument("--name", default=DEFAULT_TAG, help="tag name (default exp-v2)")
     parser.add_argument("--push", action="store_true", help="with --tag: push the tag")
     parser.add_argument(
         "--skip-checks", action="store_true", help="with --prepare: skip make check"

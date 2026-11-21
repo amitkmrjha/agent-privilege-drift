@@ -1,6 +1,6 @@
 # Pre-registration
 
-**Registered at the freeze (tag `exp-v1`, issue #30).** Every rule here is taken from a decision
+**Registered at the freeze (tag `exp-v1`, issue #30); amended at tag `exp-v2` (section 10A, decision D32).** Every rule here is taken from a decision
 record (`docs/decisions/`) or a config file, and the values it depends on are recorded in section 11
 with their hashes. After the tag, any change to a run file or to this text is a logged deviation
 (`docs/deviations.md`, #35), and the analyses it touches are labelled exploratory.
@@ -206,6 +206,33 @@ analysis affected by a change after the freeze, is reported as exploratory.
   provisional task success; the frontier model may be a small model with different decoding and no
   digest; the local model is 8B; the noise behind the power figures rests on 10 pilot scenarios;
   3 seeds leave the primary contrast borderline for a 12-point effect.
+
+## 10A. Amendment exp-v2: a large frontier model (added after the exp-v1 results)
+
+**Written on 2026-11-21, after the 2,700 exp-v1 runs were finished and analysed.** The exp-v1 results
+were seen first (primary contrast: Llama delta +0.071, Flash-Lite delta +0.081, difference in
+differences +0.010, 95% interval [-0.046, 0.066]), so everything in this section is a decision made
+with that knowledge. It is registered here, before any run of the new model, so that it is at least
+fixed in advance of those runs (decision D32).
+
+- **Why.** An examiner can say that `gemini-3.5-flash-lite` is not a frontier model. A large model answers that.
+- **The model.** `frontier_large` = `gemini/gemini-4-carbon`, a pinned id (no `-latest`, no `-preview`).
+  It accepts the shared decoding settings, so it runs with temperature 0.2, top-p 0.9 and max tokens
+  2,048, the same as Llama (no `omit_params`). The first choice, `gemini-2.5-pro`, is closed to this account.
+- **Cells.** 9 cells, numbers 18 to 26 (`frontier_large_p{0,0.3,0.6}_{none,ibac,mac}`), 150 runs each, with the
+  seeds of the extended schedule; cells 0 to 17 and their seeds are unchanged. Run order is the D31 order.
+  The planned run is the first three cells (no mediator), 450 runs. The mediator cells are run only if time
+  and budget allow; a registered cell not finished is reported as "not run", not as a deviation.
+- **Tests (the amendment's own, fixed here).** Two difference-in-differences contrasts of the same form as H1
+  (no mediator, delta = V(0.6) - V(0)): A1 = large minus Llama, A2 = large minus Flash-Lite. Same statistics
+  as H1 (bootstrap interval, paired Wilcoxon). Each is judged at alpha = 0.025 (two tests). A result is
+  reported as the interval and p, never as a stand-alone "significant". Every other analysis of the large
+  model (rates, Page's trend, the mediator contrasts, the utility floor, RQ3) is **exploratory**.
+- **What does not change.** H1 and every exp-v1 analysis are reported as registered, on the exp-v1 models only
+  (`make analyse`, which now limits itself to `llama,frontier`); the amendment is analysed separately
+  (`make analyse-v2`). Data quality rules, exclusions, the stop rules for rate limits and the freeze rules are as before.
+- **Limits stated in advance.** The model was chosen after the exp-v1 results; its price and ranking come from
+  secondary sources; Gemini records no model fingerprint, so the id, the date and the commit are the record.
 
 ## 11. Freeze record
 

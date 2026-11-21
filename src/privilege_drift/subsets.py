@@ -25,7 +25,7 @@ from privilege_drift.schema import Scenario
 MASTER_SEED = 20261119
 SUBSET_SIZE = 50
 SEEDS_PER_SCENARIO = 5  # the grid uses 3; storing 5 makes the 3-to-5 contingency a config change
-N_CELLS = 18  # 2 models x 3 failure rates x 3 mediators
+N_CELLS = 27  # 3 models x 3 failure rates x 3 mediators (cells 0 to 17 are the exp-v1 grid)
 SEED_LIMIT = 2**31 - 1  # Ollama seeds are signed 32-bit integers
 
 METHOD = (

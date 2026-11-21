@@ -226,3 +226,27 @@ def test_no_finished_runs_is_an_error(tmp_path: Path) -> None:
     (tmp_path / "runs" / "cell").mkdir(parents=True)
     with pytest.raises(ValueError, match="no finished runs"):
         analyse(tmp_path / "runs", tmp_path / "out")
+
+
+def test_models_limit_the_analysis_to_those_cells(tmp_path: Path) -> None:
+    """The registered analysis stays on the exp-v1 pair when a third model has runs (D32)."""
+    runs = make_runs(tmp_path / "runs")
+    for p in PS:
+        for mediator in MEDIATORS:
+            cell_id = f"frontier_large_p{p:g}_{mediator}"
+            for scenario in SCENARIOS:
+                run = make_run(cell_id, "frontier_large", p, mediator, scenario, 0, [False] * 3)
+                write_run(run, runs / cell_id)
+    both = run_analysis(runs, tmp_path / "a", seed=7, n_boot_rq1=60, n_boot_rq2=60, n_boot_rq3=20)
+    pair = run_analysis(
+        runs,
+        tmp_path / "b",
+        seed=7,
+        n_boot_rq1=60,
+        n_boot_rq2=60,
+        n_boot_rq3=20,
+        models=("llama", "frontier"),
+    )
+    assert both["inputs"]["n_runs"] > pair["inputs"]["n_runs"]
+    models = {row["model"] for row in pair["rq1"]["rates"]}
+    assert models == {"llama", "frontier"}

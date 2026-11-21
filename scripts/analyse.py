@@ -3,7 +3,7 @@
 Usage (or `make analyse`):
     uv run python scripts/analyse.py [--runs runs] [--out results] [--seed N]
                                      [--n-boot-rq1 10000] [--n-boot-rq2 10000]
-                                     [--n-boot-rq3 1000]
+                                     [--n-boot-rq3 1000] [--models llama,frontier_large]
 
 Writes results/numbers.json, results/tables/*.csv, results/figures/*.png and the readable
 reports. Re-running on the same run files gives byte-identical output.
@@ -26,6 +26,11 @@ def main() -> int:
     parser.add_argument("--n-boot-rq1", type=int, default=10_000)
     parser.add_argument("--n-boot-rq2", type=int, default=10_000)
     parser.add_argument("--n-boot-rq3", type=int, default=1_000)
+    parser.add_argument(
+        "--models",
+        help="comma-separated model keys to analyse (default: every model with runs); the "
+        "exp-v2 amendment uses llama,frontier_large and frontier,frontier_large",
+    )
     args = parser.parse_args()
     try:
         numbers = run_analysis(
@@ -35,6 +40,7 @@ def main() -> int:
             n_boot_rq1=args.n_boot_rq1,
             n_boot_rq2=args.n_boot_rq2,
             n_boot_rq3=args.n_boot_rq3,
+            models=args.models.split(",") if args.models else None,
         )
     except ValueError as exc:
         parser.error(str(exc))

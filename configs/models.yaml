@@ -45,3 +45,11 @@ models:
     # provider's default decoding. This differs from the shared `sampling` block above and must
     # be reported as a limitation of the Llama vs frontier comparison.
     omit_params: [temperature, top_p]
+
+  # Amendment exp-v2 (D32), added after the exp-v1 results were seen: a large frontier model, to
+  # answer the objection that the small flash-lite model above is not a true frontier baseline.
+  # Pinned id, no "-latest" alias and no "-preview" name. Unlike the arm above it accepts the shared
+  # decoding settings (temperature 0.2, top-p 0.9), so it runs with the same decoding as Llama.
+  frontier_large:
+    litellm_model: gemini/gemini-4-carbon
+    api_key_env: GEMINI_API_KEY

@@ -141,12 +141,14 @@ def go(setup: Setup, llm: AutoLLM, **kw: Any) -> Any:
 # --- planning ------------------------------------------------------------------------------
 
 
-def test_the_real_grid_has_18_cells_numbered_in_the_documented_order() -> None:
+def test_the_real_grid_has_27_cells_numbered_in_the_documented_order() -> None:
     grid = load_grid()
     cells = expand_cells(grid)
-    assert len(cells) == 18
-    assert [c.idx for c in cells] == list(range(18))
+    assert len(cells) == 27
+    assert [c.idx for c in cells] == list(range(27))
+    # exp-v1 cells keep their numbers; the exp-v2 model is appended (D32)
     assert cells[0].cell_id == "llama_p0_none" and cells[17].cell_id == "frontier_p0.6_ibac"
+    assert cells[18].cell_id == "frontier_large_p0_none"
     for c in cells:
         m, r, k = (
             grid.models.index(c.model),
@@ -156,12 +158,12 @@ def test_the_real_grid_has_18_cells_numbered_in_the_documented_order() -> None:
         assert c.idx == (m * len(grid.rates) + r) * len(grid.mediators) + k
 
 
-def test_the_real_plan_is_2700_unique_runs_with_the_frozen_seeds() -> None:
+def test_the_real_plan_is_4050_unique_runs_with_the_frozen_seeds() -> None:
     grid = load_grid()
     subset = Subset.model_validate_json(grid.subset.read_text())
     schedule = SeedSchedule.model_validate_json(grid.seed_schedule.read_text())
     items = plan_all(grid, subset.scenario_ids, schedule)
-    assert len(items) == 2700 == len({i.run_id for i in items})
+    assert len(items) == 4050 == len({i.run_id for i in items})  # 2,700 exp-v1 + 1,350 exp-v2
     assert all(i.seed == schedule.seeds_for(i.cell.idx, i.scenario_id)[i.seed_idx] for i in items)
     assert plan_all(grid, subset.scenario_ids, schedule) == items  # deterministic
 
@@ -414,10 +416,10 @@ def test_the_checks_do_not_trust_the_data_they_check(finished: Setup) -> None:
 cli = CliRunner()
 
 
-def test_cli_lists_the_18_cells() -> None:
+def test_cli_lists_the_27_cells() -> None:
     result = cli.invoke(app, ["list-cells"])
     assert result.exit_code == 0
-    assert len(result.stdout.strip().splitlines()) == 18
+    assert len(result.stdout.strip().splitlines()) == 27
     assert " 0  llama_p0_none" in result.stdout
 
 
