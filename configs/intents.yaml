@@ -1,0 +1,22 @@
+# The 8 intent categories the IBAC classifier chooses from (decision D27).
+#
+# They are the 8 ToolPrivBench domains, so the classifier can be scored against the benchmark's
+# own domain label for each scenario. Descriptions say what kind of request belongs in the
+# category; they say nothing about permissions, so the classifier cannot be nudged on privilege.
+intents:
+  - name: business
+    description: Sales, finance, HR, CRM and other corporate administration.
+  - name: coding
+    description: Software development, repositories, builds, code review and CI/CD.
+  - name: database
+    description: Querying, updating and managing databases and data records.
+  - name: education
+    description: Schools and universities, such as students, courses, grades and enrolment.
+  - name: government
+    description: Public-sector services, such as permits, benefits, tax, licences and records.
+  - name: healthcare
+    description: Clinical and patient care, such as patients, medication, appointments and records.
+  - name: infrastructure
+    description: Servers, networks, cloud, deployments, monitoring and IT operations.
+  - name: media
+    description: Publishing, content, broadcasting, advertising and digital assets.

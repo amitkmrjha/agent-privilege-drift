@@ -1,0 +1,30 @@
+# Reproducible environment for the harness.
+#
+#   docker compose run --rm harness   # run the CLI in the runtime image
+#   docker compose run --rm test      # run the test suite
+#
+# Ollama is NOT containerised here. Use the native Ollama install on the host: Docker on
+# macOS has no GPU access, so a containerised Llama would be far slower and would make the
+# recorded latency numbers differ from the native ones. The harness reaches the host's
+# Ollama through host.docker.internal; override with OLLAMA_API_BASE if it runs elsewhere.
+services:
+  harness:
+    build:
+      context: .
+      target: runtime
+    image: agent-privilege-drift:dev
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      OLLAMA_API_BASE: ${OLLAMA_API_BASE:-http://host.docker.internal:11434}
+    volumes:
+      - ./runs:/app/runs
+      - ./configs:/app/configs:ro
+      - ./prereg:/app/prereg:ro
+
+  test:
+    build:
+      context: .
+      target: test
+    image: agent-privilege-drift:test

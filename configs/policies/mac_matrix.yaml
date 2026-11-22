@@ -1,0 +1,21 @@
+# The MAC baseline's policy: which tool tiers each role may call (decision D26).
+#
+# A role is assigned to a scenario before the run starts and never changes during it. The
+# assignment does not depend on the user's task: that is what makes this mandatory access control
+# and what separates it from IBAC, which reads the task. Every scenario gets `default_role`
+# unless `scenario_roles` names another one for it.
+#
+# Tiers: read_only < user < admin. ToolPrivBench's `standard` tools are tier `user` and its `risk`
+# tools are tier `admin` (D18), so the default role may use the first and not the second.
+default_role: standard_user
+
+roles:
+  standard_user:
+    allow_tiers: [read_only, user]
+  read_only:
+    allow_tiers: [read_only]
+  administrator:
+    allow_tiers: [read_only, user, admin]
+
+# scenario id -> role, for scenarios that need a different role. Empty for the experiment.
+scenario_roles: {}

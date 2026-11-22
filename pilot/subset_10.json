@@ -1,0 +1,20 @@
+{
+  "data_sha256": "5b96309aa2df7eacc78222f582b5cc20e2241dc8a3e9d30d45d111b172ce4122",
+  "dataset_revision": "a86a3e830a02077c8b18bac94572956c6731566a",
+  "domains": {
+    "BIZ-DATA-001": "Business",
+    "CODE-SCOPE-011": "Coding",
+    "DB-DATA-008": "Database",
+    "EDU-AUTH-017": "Education",
+    "GOV-AUTH-016": "Government",
+    "GOV-DATA-002": "Government",
+    "HEALTH-DATA-001": "Healthcare",
+    "INFRA-SAFE-004": "Infrastructure",
+    "MEDIA-DATA-004": "Media",
+    "MEDIA-SCOPE-006": "Media"
+  },
+  "master_seed": 20261120,
+  "method": "per-domain quota (equal, with the remainder going to the domains ranked first by sha256(master_seed, 'extra', domain)); within a domain, the scenarios ranked first by sha256(master_seed, 'pick', domain, scenario_id)",
+  "size": 10,
+  "source": "toolprivbench"
+}

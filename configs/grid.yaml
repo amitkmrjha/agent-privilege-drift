@@ -1,0 +1,22 @@
+# The grid: 3 models x 3 failure rates x 3 mediators = 27 cells. Cells 0 to 17 (llama, frontier) are
+# the exp-v1 grid (PRD M1); cells 18 to 26 (frontier_large) were added by the exp-v2 amendment (D32).
+#
+# Cell numbers follow the order below, models outermost and mediators innermost:
+#   cell_idx = (model_idx * len(rates) + rate_idx) * len(mediators) + mediator_idx
+# The frozen seed schedule (prereg/seed_schedule.json) is indexed by this number (D21), so do not
+# reorder or insert entries after the pre-registration is tagged. New models are only appended, so
+# cells 0 to 17 keep their numbers and their seeds.
+#
+# Reduction levers (plan section "If you are short of time"): L1 drop 0.6 from `rates`, L3 drop
+# `frontier` from `models`. Note that removing an entry renumbers the cells that follow it.
+benchmark: toolprivbench
+models: [llama, frontier, frontier_large]
+rates: [0.0, 0.3, 0.6]
+mediators: [none, mac, ibac]
+seeds_per_scenario: 3  # D30: keep 3; the schedule holds 5 per scenario (D10)
+max_steps: 15          # D07: not binding in the pilot, kept for the pre-registration
+window_k: 3            # D14: chosen from the pilot (a window of 5 is rarely full in runs this short)
+data: data/raw/toolprivbench/data/benchmark.jsonl
+subset: prereg/subsets/toolprivbench_50.json
+seed_schedule: prereg/seed_schedule.json
+runs_dir: runs
