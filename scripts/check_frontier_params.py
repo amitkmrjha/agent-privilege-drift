@@ -7,8 +7,9 @@ Usage (needs the key in your shell, for example `set -a; source .env; set +a`):
 Sends a handful of tiny requests (a few tokens each, so the cost is negligible) to the frontier
 model in `configs/models.yaml`, once with no extra setting and then with temperature, top-p and a
 seed, and says which the API accepted. If it accepts temperature and top-p, remove `omit_params`
-from the frontier entry so both arms run with identical decoding (the preregistration, decoding settings); if it
-rejects them, the departure stays and is reported as a limitation. Run it before the freeze.
+from the frontier entry so both arms run with identical decoding (the preregistration, decoding
+settings); if it rejects them, the departure stays and is reported as a limitation. Run it before
+the freeze.
 """
 
 from __future__ import annotations
