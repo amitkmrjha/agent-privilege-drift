@@ -9,9 +9,9 @@
                                                 on main, after the prepare PR is merged:
                                                 create the annotated tag (and push it)
 
-The order matters because the freeze must not be pushed straight to main: --prepare runs on a branch and its
-commit goes through a pull request; --tag then verifies that nothing has moved since and tags the
-merged commit. The tag must be on the remote before any full run.
+The order matters because the freeze must not be pushed straight to main: --prepare runs on a
+branch and its commit goes through a pull request; --tag then verifies that nothing has moved
+since and tags the merged commit. The tag must be on the remote before any full run.
 
 The freeze refuses to proceed while the pre-registration still has a [CONFIRM] or [FILL] marker, the
 frozen subset does not match its regeneration, or (for --prepare and --tag) the tree is not clean.

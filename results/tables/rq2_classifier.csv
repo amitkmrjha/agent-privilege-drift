@@ -1,0 +1,7 @@
+model,p,runs,failed_runs,failure_rate
+frontier,0.0,150,0,0.0
+frontier,0.3,150,0,0.0
+frontier,0.6,150,0,0.0
+llama,0.0,150,0,0.0
+llama,0.3,150,0,0.0
+llama,0.6,150,0,0.0

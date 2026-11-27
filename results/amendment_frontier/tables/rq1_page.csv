@@ -1,0 +1,5 @@
+model,mediator,n,k,L,p_value
+frontier,ibac,50,3,634.5,0.00028029327681617744
+frontier,mac,50,3,640.5,2.560881647404149e-05
+frontier,none,50,3,639.5,3.9075596597787456e-05
+frontier_large,none,50,3,603.0,0.3820885778110474
